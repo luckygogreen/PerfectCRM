@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 # Create your models here.
 class UserProfile(models.Model):
     """用户信息表"""
-    user = models.ForeignKey(User,on_delete=models.CASCADE)  # 关联Django的用户验证表
+    user = models.ForeignKey(User, on_delete=models.CASCADE)  # 关联Django的用户验证表
     name = models.CharField(max_length=32, verbose_name="full name")
     role = models.ManyToManyField('Role')
 
@@ -16,6 +16,7 @@ class UserProfile(models.Model):
 class Role(models.Model):
     """角色表"""
     name = models.CharField(max_length=64, unique=True)
+    menus = models.ManyToManyField('Menus',blank=True)
 
     def __str__(self):
         return self.name
@@ -36,10 +37,10 @@ class CustomerInfo(models.Model):
         (5, 'Other'),
     )
     source = models.SmallIntegerField(choices=source_choices, verbose_name='客户来源')
-    referral_from = models.ForeignKey('self', blank=True, null=True,on_delete=models.CASCADE)
+    referral_from = models.ForeignKey('self', blank=True, null=True, on_delete=models.CASCADE)
     consult_course = models.ManyToManyField('Course', verbose_name='咨询课程')
     consult_Details = models.TextField(verbose_name='咨询详情')
-    cunsultant = models.ForeignKey('UserProfile', verbose_name='咨询顾问',on_delete=models.CASCADE)
+    cunsultant = models.ForeignKey('UserProfile', verbose_name='咨询顾问', on_delete=models.CASCADE)
     status_choices = (
         (0, '未报名'),
         (1, '待咨询'),
@@ -57,7 +58,7 @@ class CustomerInfo(models.Model):
 
 class Student(models.Model):
     """学院表"""
-    customer = models.ForeignKey('CustomerInfo',on_delete=models.CASCADE)
+    customer = models.ForeignKey('CustomerInfo', on_delete=models.CASCADE)
     class_grades = models.ManyToManyField('ClassList')
 
     def __str__(self):
@@ -66,9 +67,9 @@ class Student(models.Model):
 
 class CustomerFollowUp(models.Model):
     """客户跟踪记录表"""
-    customer = models.ForeignKey('CustomerInfo',on_delete=models.CASCADE)
+    customer = models.ForeignKey('CustomerInfo', on_delete=models.CASCADE)
     content = models.TextField(verbose_name='跟踪内容')
-    user = models.ForeignKey('UserProfile', verbose_name='跟踪客户',on_delete=models.CASCADE)
+    user = models.ForeignKey('UserProfile', verbose_name='跟踪客户', on_delete=models.CASCADE)
     status_choices = (
         (0, '无报名几乎'),
         (1, '近期报名'),
@@ -96,16 +97,16 @@ class Course(models.Model):
 
 class ClassList(models.Model):
     """班级列表"""
-    branch = models.ForeignKey('Branch',on_delete=models.CASCADE)
-    course = models.ForeignKey('Course',on_delete=models.CASCADE)
+    branch = models.ForeignKey('Branch', on_delete=models.CASCADE)
+    course = models.ForeignKey('Course', on_delete=models.CASCADE)
     class_type_choices = (
-        (0,'平日班'),
-        (1,'周末班'),
-        (2,'网络班'),
+        (0, '平日班'),
+        (1, '周末班'),
+        (2, '网络班'),
     )
-    class_type = models.SmallIntegerField(choices=class_type_choices,default=1)
+    class_type = models.SmallIntegerField(choices=class_type_choices, default=1)
     semester = models.PositiveSmallIntegerField(verbose_name='学期')
-    branch = models.ForeignKey('Branch',on_delete=models.CASCADE)
+    branch = models.ForeignKey('Branch', on_delete=models.CASCADE)
     Teacher = models.ManyToManyField('UserProfile')
     start_date = models.DateField(verbose_name=u'开课日期')
     graduate_date = models.DateField(blank=True, null=True, verbose_name='毕业日期')
@@ -114,14 +115,14 @@ class ClassList(models.Model):
         return '{}{}期'.format(self.course, self.semester)
 
     class Meta:
-        unique_together = ('course', 'semester', 'branch','class_type')
+        unique_together = ('course', 'semester', 'branch', 'class_type')
 
 
 class CourseRecord(models.Model):
     """上课记录"""
-    class_grade = models.ForeignKey('ClassList',on_delete=models.CASCADE, verbose_name='记录班级')
+    class_grade = models.ForeignKey('ClassList', on_delete=models.CASCADE, verbose_name='记录班级')
     day_number = models.PositiveSmallIntegerField(verbose_name='课程节次')
-    teacher = models.ForeignKey('UserProfile',on_delete=models.CASCADE, verbose_name='讲师')
+    teacher = models.ForeignKey('UserProfile', on_delete=models.CASCADE, verbose_name='讲师')
     title = models.CharField(max_length=64, verbose_name='本节课主题')
     content = models.TextField(verbose_name='课程内容')
     has_home = models.BooleanField(verbose_name='是否有作业', default=False)
@@ -137,8 +138,8 @@ class CourseRecord(models.Model):
 
 class StudyRecord(models.Model):
     """学习记录"""
-    course_record = models.ForeignKey('CourseRecord',on_delete=models.CASCADE, verbose_name='课程记录')
-    student = models.ForeignKey('Student',on_delete=models.CASCADE)
+    course_record = models.ForeignKey('CourseRecord', on_delete=models.CASCADE, verbose_name='课程记录')
+    student = models.ForeignKey('Student', on_delete=models.CASCADE)
     score_choices = (
         (100, 'A+'),
         (95, 'A'),
@@ -175,3 +176,18 @@ class Branch(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Menus(models.Model):
+    name = models.CharField(max_length=64)
+    url_type_choices = (
+        (0,'absolute'),
+        (1,'dynamic'),
+    )
+    url_type = models.SmallIntegerField(choices=url_type_choices,verbose_name='URL类型',default=0)
+    url = models.CharField(max_length=128)
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        unique_together = ('name','url')

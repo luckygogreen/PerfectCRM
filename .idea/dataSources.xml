@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="perfectcrm@localhost" uuid="c78c1104-6f4e-4c20-9c9c-a950e0bc5464">
+    <data-source source="LOCAL" name="perfectcrm@localhost" uuid="9ac81d13-9c91-42cf-954e-f39d1372a402">
       <driver-ref>mysql.8</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>

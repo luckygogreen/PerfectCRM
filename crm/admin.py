@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 # Register your models here.
-from  CRM import models
+from  crm import models
 
 
 
@@ -15,3 +15,4 @@ admin.site.register(models.ClassList)
 admin.site.register(models.CourseRecord)
 admin.site.register(models.StudyRecord)
 admin.site.register(models.Branch)
+admin.site.register(models.Menus)
