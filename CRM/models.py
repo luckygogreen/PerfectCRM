@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 # Create your models here.
 class UserProfile(models.Model):
     """用户信息表"""
-    user = models.ForeignKey(User)  # 关联Django的用户验证表
+    user = models.ForeignKey(User,on_delete=models.CASCADE)  # 关联Django的用户验证表
     name = models.CharField(max_length=32, verbose_name="full name")
     role = models.ManyToManyField('Role')
 
@@ -36,10 +36,10 @@ class CustomerInfo(models.Model):
         (5, 'Other'),
     )
     source = models.SmallIntegerField(choices=source_choices, verbose_name='客户来源')
-    referral_from = models.ForeignKey('self', blank=True, null=True)
+    referral_from = models.ForeignKey('self', blank=True, null=True,on_delete=models.CASCADE)
     consult_course = models.ManyToManyField('Course', verbose_name='咨询课程')
     consult_Details = models.TextField(verbose_name='咨询详情')
-    cunsultant = models.ForeignKey('UserProfile', verbose_name='咨询顾问')
+    cunsultant = models.ForeignKey('UserProfile', verbose_name='咨询顾问',on_delete=models.CASCADE)
     status_choices = (
         (0, '未报名'),
         (1, '待咨询'),
@@ -57,7 +57,7 @@ class CustomerInfo(models.Model):
 
 class Student(models.Model):
     """学院表"""
-    customer = models.ForeignKey('CustomerInfo')
+    customer = models.ForeignKey('CustomerInfo',on_delete=models.CASCADE)
     class_grades = models.ManyToManyField('ClassList')
 
     def __str__(self):
@@ -66,9 +66,9 @@ class Student(models.Model):
 
 class CustomerFollowUp(models.Model):
     """客户跟踪记录表"""
-    customer = models.ForeignKey('CustomerInfo')
+    customer = models.ForeignKey('CustomerInfo',on_delete=models.CASCADE)
     content = models.TextField(verbose_name='跟踪内容')
-    user = models.ForeignKey('UserProfile', verbose_name='跟踪客户')
+    user = models.ForeignKey('UserProfile', verbose_name='跟踪客户',on_delete=models.CASCADE)
     status_choices = (
         (0, '无报名几乎'),
         (1, '近期报名'),
@@ -96,9 +96,16 @@ class Course(models.Model):
 
 class ClassList(models.Model):
     """班级列表"""
-    course = models.ForeignKey(models.Model)
+    branch = models.ForeignKey('Branch',on_delete=models.CASCADE)
+    course = models.ForeignKey('Course',on_delete=models.CASCADE)
+    class_type_choices = (
+        (0,'平日班'),
+        (1,'周末班'),
+        (2,'网络班'),
+    )
+    class_type = models.SmallIntegerField(choices=class_type_choices,default=1)
     semester = models.PositiveSmallIntegerField(verbose_name='学期')
-    branch = models.ForeignKey()
+    branch = models.ForeignKey('Branch',on_delete=models.CASCADE)
     Teacher = models.ManyToManyField('UserProfile')
     start_date = models.DateField(verbose_name=u'开课日期')
     graduate_date = models.DateField(blank=True, null=True, verbose_name='毕业日期')
@@ -107,14 +114,14 @@ class ClassList(models.Model):
         return '{}{}期'.format(self.course, self.semester)
 
     class Meta:
-        unique_together = ('course', 'semester')
+        unique_together = ('course', 'semester', 'branch','class_type')
 
 
 class CourseRecord(models.Model):
     """上课记录"""
-    class_grade = models.ForeignKey('ClassList', verbose_name='记录班级')
+    class_grade = models.ForeignKey('ClassList',on_delete=models.CASCADE, verbose_name='记录班级')
     day_number = models.PositiveSmallIntegerField(verbose_name='课程节次')
-    teacher = models.ForeignKey('UserProfile', verbose_name='讲师')
+    teacher = models.ForeignKey('UserProfile',on_delete=models.CASCADE, verbose_name='讲师')
     title = models.CharField(max_length=64, verbose_name='本节课主题')
     content = models.TextField(verbose_name='课程内容')
     has_home = models.BooleanField(verbose_name='是否有作业', default=False)
@@ -130,8 +137,8 @@ class CourseRecord(models.Model):
 
 class StudyRecord(models.Model):
     """学习记录"""
-    course_record = models.ForeignKey('CourseRecord', verbose_name='课程记录')
-    student = models.ForeignKey('Student')
+    course_record = models.ForeignKey('CourseRecord',on_delete=models.CASCADE, verbose_name='课程记录')
+    student = models.ForeignKey('Student',on_delete=models.CASCADE)
     score_choices = (
         (100, 'A+'),
         (95, 'A'),
@@ -145,7 +152,7 @@ class StudyRecord(models.Model):
         (-50, 'E'),
         (-100, 'F'),
     )
-    score = models.SmallIntegerField(choices=score_choices, verbose_name='分数')
+    score = models.SmallIntegerField(choices=score_choices, default=0, verbose_name='分数')
     show_status_choices = (
         (0, '缺勤'),
         (1, '已签到'),
