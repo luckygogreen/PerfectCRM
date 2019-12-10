@@ -70,3 +70,14 @@ def build_filter_element(filter_column, admin_class):
                 filter_element += option
     filter_element += '</select>'
     return mark_safe(filter_element)
+
+@register.simple_tag
+def render_paginator_button(page_number,queryset):
+    pass
+
+
+# {% if page_number == queryset.number %}
+# <li class="active"><a href="?_kpage={{ page_number }}">{{ page_number }}</a></li>
+# {% else %}
+# <li><a href="?_kpage={{ page_number }}">{{ page_number }}</a></li>
+# {% endif %}

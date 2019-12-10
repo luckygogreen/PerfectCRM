@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 from kadmin import kadd_stepup
 kadd_stepup.kadmin_auto_deicover()
 from kadmin.ksites import ksite
@@ -19,6 +20,7 @@ def kevin_index(request):
 def get_filter_result(request,queryset):
     filter_condition = {}
     for k,v in request.GET.items():
+        if k =='_kpage':continue
         if v:
             filter_condition[k]=v
     print('filter_condition:',filter_condition)
@@ -34,6 +36,11 @@ def table_obj_list(request, appname, modelname):
     queryset = admin_class.model.objects.all()
     queryset,filter_condition = get_filter_result(request,queryset)
     admin_class.filter_condition = filter_condition
+
+    paginator = Paginator(queryset, 1)  # Show 25 contacts per page
+    page = request.GET.get('_kpage')
+    queryset = paginator.get_page(page)
+
     return render(request,'table_object_list.html',{'queryset':queryset,'admin_class':admin_class,'appname':appname,'modelname':modelname})
 
 def kuser_login(request):
