@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 # Create your models here.
 class UserProfile(models.Model):
     """用户信息表"""
-    user = models.ForeignKey(User, on_delete=models.CASCADE)  # 关联Django的用户验证表
+    user = models.OneToOneField(User, on_delete=models.CASCADE)  # 关联Django的用户验证表
     name = models.CharField(max_length=32, verbose_name="full name")
     role = models.ManyToManyField('Role')
 
@@ -191,3 +191,4 @@ class Menus(models.Model):
 
     class Meta:
         unique_together = ('name','url')
+        verbose_name_plural = '目录表  Menus'

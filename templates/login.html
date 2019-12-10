@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block other_css %}
+    {% load static %}
+    <link href="{% static 'css/signin.css' %}" rel="stylesheet"><!--登录样式-->
+{% endblock %}
+{% block for_dashboard %}
+    <div class="container">
+
+        <form class="form-signin" method="post"><!--用户登录验证-->{% csrf_token %}
+            <h2 class="form-signin-heading">Please sign in</h2>
+            <label class="label label-danger">{{ error_message }}</label>
+            <label for="inputname" class="sr-only">Your Name</label>
+            <input type="text" id="inputUserName" name="username" class="form-control" placeholder="User Name"
+                   required="" autofocus="">
+            <label for="inputPassword" class="sr-only">Password</label>
+            <input type="password" id="inputPassword" name="password" class="form-control" placeholder="Password"
+                   required="">
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" value="remember-me"> Remember me
+                </label>
+            </div>
+            <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+        </form>
+
+    </div>
+{% endblock %}

@@ -37,7 +37,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'crm.apps.CrmConfig',
+    'crm', #apps.CrmConfig
+    'kadmin', #.apps.KadminConfig
+    'student',
 ]
 
 MIDDLEWARE = [
@@ -55,7 +57,7 @@ ROOT_URLCONF = 'PerfectCRM.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')]
+        'DIRS': [os.path.join(BASE_DIR, 'templates'),os.path.join(BASE_DIR, 'kadmin/templates')]
         ,
         'APP_DIRS': True,
         'OPTIONS': {
@@ -132,3 +134,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR,'statics')]
+STATICFILES_DIRS = [os.path.join(BASE_DIR,'kadmin/statics')]
+
+LOGIN_URL = '/login/'
+LOGIN_URL = '/kadmin/klogin/'
