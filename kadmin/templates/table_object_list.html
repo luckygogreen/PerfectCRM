@@ -4,11 +4,14 @@
 {% block showinfomation %}
     <div class="panel panel-info" style="margin: 30px;">
         <div class="panel-heading">
-            <form method="post">
-            {% for filter_column in admin_class.list_filter %}
-                {% build_filter_element filter_column admin_class %}
-            {% endfor %}
-            </form>
+            {% if admin_class.list_filter %}
+                <form>
+                    {% for filter_column in admin_class.list_filter %}
+                        {% build_filter_element filter_column admin_class %}
+                    {% endfor %}
+                    <input type="submit" value="Go">
+                </form>
+            {% endif %}
         </div>
         <div class="panel-heading">
             <h3 class="panel-title">APP名称:{{ appname }} | 表名：{{ modelname }}</h3>
@@ -17,9 +20,13 @@
             <table class="table table-striped">
                 <thead>
                 <tr>
-                    {% for column in admin_class.list_display %}
-                        <th>{{ column }}</th>
-                    {% endfor %}
+                    {% if admin_class.list_display %}
+                        {% for column in admin_class.list_display %}
+                            <th>{{ column }}</th>
+                        {% endfor %}
+                    {% else %}
+                        <th>{% get_model_name admin_class %}</th>
+                    {% endif %}
                 </tr>
                 </thead>
                 <tbody>

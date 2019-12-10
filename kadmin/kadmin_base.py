@@ -1,2 +1,5 @@
 class BaseKadmin(object):
-    pass
+    list_display = []
+    list_filter = []
+    search_fields = []
+    list_editable = []

@@ -4,10 +4,11 @@ from django.contrib.auth.decorators import login_required
 from kadmin import kadd_stepup
 kadd_stepup.kadmin_auto_deicover()
 from kadmin.ksites import ksite
-print('ksite:',ksite.enabled_admins) #{'crm': {'customerinfo': <class 'crm.kingadmin.admin_CustomerInfo'>, 'menus': <class 'crm.kingadmin.Admin_Menus'>, 'role': <class 'kadmin.kadmin_base.BaseKadmin'>}, 'student': {'test': <class 'student.kingadmin.AdminTest'>}}
+# print('ksite:',ksite.enabled_admins) #{'crm': {'customerinfo': <class 'crm.kingadmin.admin_CustomerInfo'>, 'menus': <class 'crm.kingadmin.Admin_Menus'>, 'role': <class 'kadmin.kadmin_base.BaseKadmin'>}, 'student': {'test': <class 'student.kingadmin.AdminTest'>}}
 for k,v in ksite.enabled_admins.items():
     for table_name,admin_class in v.items():
-        print(table_name,':',id(admin_class))  # 打印admin_class 的内存地址
+        pass
+        # print(table_name,':',id(admin_class))  # 打印admin_class 的内存地址
 
 
 @login_required
@@ -15,16 +16,24 @@ def kevin_index(request):
     # print(conf.settings.INSTALLED_APPS)
     return render(request, 'kindex.html', {'ksite': ksite})
 
+def get_filter_result(request,queryset):
+    filter_condition = {}
+    for k,v in request.GET.items():
+        if v:
+            filter_condition[k]=v
+    print('filter_condition:',filter_condition)
+    return queryset.filter(**filter_condition),filter_condition
 
 @login_required
 def table_obj_list(request, appname, modelname):
     """取出指定Model table里的数据，返回给前端"""
-    print(ksite.enabled_admins[appname][modelname])  # <class 'crm.kingadmin.admin_CustomerInfo'>
+    # print(ksite.enabled_admins[appname][modelname])  # <class 'crm.kingadmin.admin_CustomerInfo'>
     # print(ksite.enabled_admins[appname][modelname].list_display)  # ['id', 'name', 'phone', 'address', 'wechat_or_other', 'source', 'cunsultant', 'status', 'date']
-    print(ksite.enabled_admins[appname][
-              modelname].model.objects.all())  # <QuerySet [<CustomerInfo: 大海>, <CustomerInfo: 大地>, <CustomerInfo: 大气>]>
+    # print(ksite.enabled_admins[appname][modelname].model.objects.all())  # <QuerySet [<CustomerInfo: 大海>, <CustomerInfo: 大地>, <CustomerInfo: 大气>]>
     admin_class = ksite.enabled_admins[appname][modelname]
     queryset = admin_class.model.objects.all()
+    queryset,filter_condition = get_filter_result(request,queryset)
+    admin_class.filter_condition = filter_condition
     return render(request,'table_object_list.html',{'queryset':queryset,'admin_class':admin_class,'appname':appname,'modelname':modelname})
 
 def kuser_login(request):
