@@ -1,0 +1,2 @@
+class BaseKadmin(object):
+    pass

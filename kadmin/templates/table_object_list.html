@@ -1,0 +1,28 @@
+{% extends 'kmain.html' %}
+{% block showsiderbar %}
+{% endblock %}
+{% block showinfomation %}
+        <div class="panel panel-info" style="margin: 20px;">
+            <div class="panel-heading">
+                <h3 class="panel-title">{{queryset}}</h3>
+            </div>
+            <div class="panel-body">
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th>Table Name</th>
+                        <th>ADD</th>
+                        <th>Change</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>q</td>
+                        <td>Add</td>
+                        <td>Change</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+{% endblock %}

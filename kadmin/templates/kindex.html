@@ -1,13 +1,32 @@
 {% extends 'kmain.html' %}
 {% block showinfomation %}
     <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-        <div class="panel panel-info">
-            <div class="panel-heading">
-                <h3 class="panel-title">Panel title</h3>
+        {% for appname,tablename in ksite.enabled_admins.items %}
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    <h3 class="panel-title">{{ appname }}</h3>
+                </div>
+                <div class="panel-body">
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>Table Name</th>
+                            <th>ADD</th>
+                            <th>Change</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for modelname in tablename %}
+                            <tr>
+                                <td><a href="{% url 'table_obj_list' appname modelname %}">{{ modelname }}</a></td>
+                                <td>Add</td>
+                                <td>Change</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            <div class="panel-body">
-                Panel content
-            </div>
-        </div>
+        {% endfor %}
     </div>
 {% endblock %}
