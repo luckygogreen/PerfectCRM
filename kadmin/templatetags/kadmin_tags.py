@@ -25,14 +25,14 @@ def build_table_row(obj, admin_class):
                 column_data = getattr(obj, column)
             td_ele = '<td>{}</td>'.format(column_data)
             element += td_ele
-            counter +=1
+            counter += 1
     else:
         td_ele = '<td>{}</td>'.format(obj)
         element += td_ele
     return mark_safe(element)
 
 
-@register.simple_tag
+@register.simple_tag #筛选
 def build_filter_element(filter_column, admin_class):
     column_obj = admin_class.model._meta.get_field(filter_column)
     try:
@@ -78,7 +78,7 @@ def build_filter_element(filter_column, admin_class):
 
 
 @register.simple_tag  # 分页
-def render_paginator_button(queryset, total_display_page):
+def render_paginator_button(queryset, admin_class, current_order_column, total_display_page):
     # print('【当前页】queryset.number:', queryset.number)
     # print('【总共显示多少页】total_display_page:', total_display_page)
     # print('【一共多少页】queryset.paginator.num_pages:', queryset.paginator.num_pages)
@@ -86,60 +86,86 @@ def render_paginator_button(queryset, total_display_page):
     # print('【是否有下一页】queryset.has_next:', queryset.has_next())
     # print('【上一页】queryset.previous_page_number:', queryset.previous_page_number)
     # print('【下一页】queryset.next_page_number:', queryset.next_page_number)
+    filter_element = get_filter_element(admin_class)
+    order_column = get_current_order_column(current_order_column)
     ele = """
     <nav aria-label="Page navigation">
                     <ul class="pagination pagination-sm">
     """
     if queryset.has_previous():
         ele += """
-                    <li><a href="?_kpage=1" aria-label="Previous"><span aria-hidden="true">First</span></a></li>
-                    <li><a href="?_kpage=%s" aria-label="Previous"><span aria-hidden="true">Previous</span></a></li>
+                    <li><a href="?_kpage=1%s%s" aria-label="Previous"><span aria-hidden="true">First</span></a></li>
+                    <!--<li><a href="?_kpage=%s%s%s" aria-label="Previous"><span aria-hidden="true">Previous</span></a></li>-->
                     
-        """ % queryset.previous_page_number()
+        """ % (filter_element, order_column, queryset.previous_page_number(), filter_element, order_column)
     for i in queryset.paginator.page_range:
         if abs(queryset.number - i) < (total_display_page / 2):
             active = ''
             if queryset.number == i:
                 active = 'active'
-            p_ele = """<li class="%s"><a href="?_kpage=%s">%s <span class="sr-only">(current)</span></a></li>""" % (
-            active, i, i)
+            p_ele = """<li class="%s"><a href="?_kpage=%s%s%s">%s <span class="sr-only">(current)</span></a></li>""" % (
+                active, i, filter_element, order_column, i)
             ele += p_ele
     if queryset.has_next():
         ele += """
-                        <li><a href="?_kpage=%s" aria-label="Next"><span aria-hidden="true">Next</span></a></li>
-                        <li><a href="?_kpage=%s" aria-label="Next"><span aria-hidden="true">Last</span></a></li>
+                        <!--<li><a href="?_kpage=%s%s%s" aria-label="Next"><span aria-hidden="true">Next</span></a></li>-->
+                        <li><a href="?_kpage=%s%s%s" aria-label="Next"><span aria-hidden="true">Last</span></a></li>
                     </ul>
                 </nav>
-                """ % (queryset.next_page_number(), queryset.paginator.num_pages)
+                """ % (
+        queryset.next_page_number(), filter_element, order_column, queryset.paginator.num_pages, filter_element,
+        order_column)
     else:
         ele += """</ul>"""
     return mark_safe(ele)
 
 
-@register.simple_tag  # 排序
-def get_sorted_column(current_order_column, forloop_counter0):
-    pass
+def get_filter_element(admin_class):
+    filter_element = ''
+    if admin_class.filter_condition:
+        for k, v in admin_class.filter_condition.items():
+            filter_element += '&%s=%s' % (k, v)
+    return filter_element
+
+
+def get_current_order_column(current_order_column):
+    order_column = ''
+    if current_order_column:
+        for k,v in current_order_column.items():
+            order_column += '&_o=%s' % v
+    return order_column
 
 
 @register.simple_tag  # 生产排序列头
 def get_orderable_column(admin_class, current_order_column):
+    # 获取筛选的筛选的表单结果
+    filter_element = get_filter_element(admin_class)
+
     th_element = ''
     if admin_class.list_display:
         counter = 1
-        current_index = 0
         for column in admin_class.list_display:
             if column in current_order_column:
-                current_index = -int(current_order_column[column])
-                if current_index >= 0:
+                resver_current_index = -int(current_order_column[column])
+                if resver_current_index >= 0:
                     order_mark = """<span class="glyphicon glyphicon-triangle-bottom" aria-hidden="true"></span>"""
                 else:
                     order_mark = """<span class="glyphicon glyphicon-triangle-top" aria-hidden="true"></span>"""
             else:
-                current_index = counter
+                resver_current_index = counter
                 order_mark = """"""
-            th_element += """<th><a href="?_o=%s">%s %s</a></th>""" % (current_index, column,order_mark)
-            counter +=1
+            th_element += """<th><a href="?_o=%s%s">%s %s</a></th>""" % (
+                resver_current_index, filter_element, column, order_mark)
+            counter += 1
 
     else:
         th_element = """<th>%s</th>""" % admin_class.model._meta.model_name.upper()
     return mark_safe(th_element)
+
+@register.simple_tag #获取排序的键值对
+def get_order_number(current_order_column):
+    order_index = ''
+    if current_order_column:
+        for k,v in current_order_column.items():
+            order_index = v
+    return order_index

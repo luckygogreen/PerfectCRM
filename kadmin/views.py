@@ -46,14 +46,14 @@ def get_filter_result(request,queryset):
     return queryset.filter(**filter_condition),filter_condition
 
 @login_required
-def table_obj_list(request, appname, modelname,show_items_per_page=10):
+def table_obj_list(request, appname, modelname,show_items_per_page=2):
     """取出指定Model table里的数据，返回给前端"""
     # print(ksite.enabled_admins[appname][modelname])  # <class 'crm.kingadmin.admin_CustomerInfo'>
     # print(ksite.enabled_admins[appname][modelname].list_display)  # ['id', 'name', 'phone', 'address', 'wechat_or_other', 'source', 'cunsultant', 'status', 'date']
     # print(ksite.enabled_admins[appname][modelname].model.objects.all())  # <QuerySet [<CustomerInfo: 大海>, <CustomerInfo: 大地>, <CustomerInfo: 大气>]>
     admin_class = ksite.enabled_admins[appname][modelname]
     queryset = admin_class.model.objects.all()
-    queryset,filter_condition = get_filter_result(request,queryset)
+    queryset,filter_condition = get_filter_result(request,queryset) #筛选
     admin_class.filter_condition = filter_condition
 
     queryset,current_order_column = get_orderby_result(request,queryset,admin_class) #排序
