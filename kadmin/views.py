@@ -25,7 +25,7 @@ def table_obj_list(request, appname, modelname):
               modelname].model.objects.all())  # <QuerySet [<CustomerInfo: 大海>, <CustomerInfo: 大地>, <CustomerInfo: 大气>]>
     admin_class = ksite.enabled_admins[appname][modelname]
     queryset = admin_class.model.objects.all()
-    return render(request,'table_object_list.html',{'queryset':queryset,'admin_class':admin_class})
+    return render(request,'table_object_list.html',{'queryset':queryset,'admin_class':admin_class,'appname':appname,'modelname':modelname})
 
 def kuser_login(request):
     error_message = ''

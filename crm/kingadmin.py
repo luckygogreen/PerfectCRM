@@ -8,7 +8,7 @@ print('测试 crm 下的Kingadmin')
 
 class admin_CustomerInfo(BaseKadmin):
     list_display = ['id', 'name', 'phone', 'address', 'wechat_or_other', 'source', 'cunsultant', 'status', 'date']
-    list_filter = ['name', 'phone', 'source', 'cunsultant', 'wechat_or_other', 'consult_course']
+    list_filter = ['source', 'cunsultant', 'consult_course']
     search_fields = ['id', 'name', 'phone', 'cunsultant__name']
     list_editable = ['source', 'status']
 
