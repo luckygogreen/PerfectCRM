@@ -21,14 +21,19 @@ def kevin_index(request):
 def get_orderby_result(request,queryset,admin_class):
     current_order_column={}
     order_index = request.GET.get('_o')
+    print(order_index)
     if order_index:
-        orderby_key = admin_class.list_display[int(order_index)]
-        current_order_column[orderby_key] = order_index #让前段知道当前排序的列
-        return queryset.order_by(orderby_key),current_order_column
+        order_index = int(order_index)
+        orderby_key = admin_class.list_display[abs(order_index)-1]
+        current_order_column[orderby_key] = order_index #让前段程序知道当前排序的列
+        if order_index >= 0:
+            return queryset.order_by(orderby_key),current_order_column
+        else:
+            return queryset.order_by('-%s' % orderby_key), current_order_column
     else:
         return queryset,current_order_column
 
-
+#筛选
 def get_filter_result(request,queryset):
     filter_condition = {}
     for k,v in request.GET.items():

@@ -77,13 +77,13 @@ def build_filter_element(filter_column, admin_class):
 
 @register.simple_tag  # 分页
 def render_paginator_button(queryset, total_display_page):
-    print('【当前页】queryset.number:', queryset.number)
-    print('【总共显示多少页】total_display_page:', total_display_page)
-    print('【一共多少页】queryset.paginator.num_pages:', queryset.paginator.num_pages)
-    print('【是否有上一页】queryset.has_previous:', queryset.has_previous())
-    print('【是否有下一页】queryset.has_next:', queryset.has_next())
-    print('【上一页】queryset.previous_page_number:', queryset.previous_page_number)
-    print('【下一页】queryset.next_page_number:', queryset.next_page_number)
+    # print('【当前页】queryset.number:', queryset.number)
+    # print('【总共显示多少页】total_display_page:', total_display_page)
+    # print('【一共多少页】queryset.paginator.num_pages:', queryset.paginator.num_pages)
+    # print('【是否有上一页】queryset.has_previous:', queryset.has_previous())
+    # print('【是否有下一页】queryset.has_next:', queryset.has_next())
+    # print('【上一页】queryset.previous_page_number:', queryset.previous_page_number)
+    # print('【下一页】queryset.next_page_number:', queryset.next_page_number)
     ele = """
     <nav aria-label="Page navigation">
                     <ul class="pagination pagination-sm">
@@ -120,11 +120,19 @@ def get_sorted_column(current_order_column, forloop_counter0):
 
 
 @register.simple_tag  # 生产排序列头
-def get_order_column(admin_class, current_order_column):
+def get_orderable_column(admin_class, current_order_column):
     th_element = ''
     if admin_class.list_display:
+        counter = 1
+        current_index = 0
         for column in admin_class.list_display:
-            th_element +="""<th><a href="?_o=">%s</a></th>""" %column
+            if column in current_order_column:
+                current_index = -int(current_order_column[column])
+            else:
+                current_index = counter
+            th_element += """<th><a href="?_o=%s">%s</a></th>""" % (current_index, column)
+            counter +=1
+
     else:
         th_element = """<th>%s</th>""" % admin_class.model._meta.model_name.upper()
     return mark_safe(th_element)
