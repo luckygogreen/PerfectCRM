@@ -1,8 +1,10 @@
 from django.template import Library
 from django.utils.safestring import mark_safe
+from django.core.paginator import Paginator
 import datetime, time
 
 register = Library()
+
 
 @register.simple_tag
 def get_model_name(admin_class):
@@ -58,7 +60,7 @@ def build_filter_element(filter_column, admin_class):
             ]
             for i in time_list:
                 selected = ''
-                if i[0] is not '': # 复杂写法 '' if not i[0] %s-%s-%s' % (i[0].year, i[0].month, i[0].day)
+                if i[0] is not '':  # 复杂写法 '' if not i[0] %s-%s-%s' % (i[0].year, i[0].month, i[0].day)
                     filter_date = '%s-%s-%s' % (i[0].year, i[0].month, i[0].day)
                     if '%s__gte' % filter_column in admin_class.filter_condition:
                         if filter_date == admin_class.filter_condition.get('%s__gte' % filter_column):
@@ -66,18 +68,46 @@ def build_filter_element(filter_column, admin_class):
                 if i[0] == '':
                     option = '<option value="" %s>All %s</option>' % (selected, filter_column)
                 else:
-                    option = '<option value="%s-%s-%s" %s>%s</option>' % (i[0].year, i[0].month, i[0].day, selected, i[1])
+                    option = '<option value="%s-%s-%s" %s>%s</option>' % (
+                        i[0].year, i[0].month, i[0].day, selected, i[1])
                 filter_element += option
     filter_element += '</select>'
     return mark_safe(filter_element)
 
+
 @register.simple_tag
-def render_paginator_button(page_number,queryset):
-    pass
-
-
-# {% if page_number == queryset.number %}
-# <li class="active"><a href="?_kpage={{ page_number }}">{{ page_number }}</a></li>
-# {% else %}
-# <li><a href="?_kpage={{ page_number }}">{{ page_number }}</a></li>
-# {% endif %}
+def render_paginator_button(queryset, total_display_page):
+    print('queryset.number:',queryset.number)
+    print('total_display_page:',total_display_page)
+    print('queryset.paginator.num_pages:',queryset.paginator.num_pages)
+    print('queryset.has_previous:',queryset.has_previous())
+    print('queryset.has_next:',queryset.has_next())
+    print('queryset.previous_page_number:',queryset.previous_page_number)
+    print('queryset.next_page_number:',queryset.next_page_number)
+    ele = """
+    <nav aria-label="Page navigation">
+                    <ul class="pagination pagination-sm">
+    """
+    if queryset.has_previous():
+        ele += """
+                    <li><a href="?_kpage=1" aria-label="Previous"><span aria-hidden="true">First</span></a></li>
+                    <li><a href="?_kpage=%s" aria-label="Previous"><span aria-hidden="true">Previous</span></a></li>
+                    
+        """ % queryset.previous_page_number()
+    for i in queryset.paginator.page_range:
+        if abs(queryset.number-i) < (total_display_page/2):
+            active =''
+            if queryset.number == i:
+                active = 'active'
+            p_ele = """<li class="%s"><a href="?_kpage=%s">%s <span class="sr-only">(current)</span></a></li>""" % (active,i,i)
+            ele += p_ele
+    if queryset.has_next():
+        ele += """
+                        <li><a href="?_kpage=%s" aria-label="Next"><span aria-hidden="true">Next</span></a></li>
+                        <li><a href="?_kpage=%s" aria-label="Next"><span aria-hidden="true">Last</span></a></li>
+                    </ul>
+                </nav>
+                """ % (queryset.next_page_number(), queryset.paginator.num_pages)
+    else:
+        ele += """</ul>"""
+    return mark_safe(ele)

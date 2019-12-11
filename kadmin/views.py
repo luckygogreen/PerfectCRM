@@ -27,7 +27,7 @@ def get_filter_result(request,queryset):
     return queryset.filter(**filter_condition),filter_condition
 
 @login_required
-def table_obj_list(request, appname, modelname):
+def table_obj_list(request, appname, modelname,show_items_per_page=2):
     """取出指定Model table里的数据，返回给前端"""
     # print(ksite.enabled_admins[appname][modelname])  # <class 'crm.kingadmin.admin_CustomerInfo'>
     # print(ksite.enabled_admins[appname][modelname].list_display)  # ['id', 'name', 'phone', 'address', 'wechat_or_other', 'source', 'cunsultant', 'status', 'date']
@@ -37,11 +37,11 @@ def table_obj_list(request, appname, modelname):
     queryset,filter_condition = get_filter_result(request,queryset)
     admin_class.filter_condition = filter_condition
 
-    paginator = Paginator(queryset, 1)  # Show 25 contacts per page
+    paginator = Paginator(queryset, show_items_per_page)  # Show 25 contacts per page
     page = request.GET.get('_kpage')
     queryset = paginator.get_page(page)
 
-    return render(request,'table_object_list.html',{'queryset':queryset,'admin_class':admin_class,'appname':appname,'modelname':modelname})
+    return render(request,'table_object_list.html',{'queryset':queryset,'admin_class':admin_class,'appname':appname,'modelname':modelname,'show_items_per_page':show_items_per_page})
 
 def kuser_login(request):
     error_message = ''
