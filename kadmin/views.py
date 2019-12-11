@@ -18,6 +18,8 @@ def kevin_index(request):
     return render(request, 'kindex.html', {'ksite': ksite})
 
 #排序
+# str.startswith('-') #判断 字符串是否以减号开头
+# str.strip('-') # 去掉字符串中的减号
 def get_orderby_result(request,queryset,admin_class):
     current_order_column={}
     order_index = request.GET.get('_o')

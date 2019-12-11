@@ -16,6 +16,7 @@ def build_table_row(obj, admin_class):
     """应用反射生产一条记录的element"""
     element = ''
     if admin_class.list_display:
+        counter = 1
         for column in admin_class.list_display:
             column_obj = admin_class.model._meta.get_field(column)
             if column_obj.choices:
@@ -24,6 +25,7 @@ def build_table_row(obj, admin_class):
                 column_data = getattr(obj, column)
             td_ele = '<td>{}</td>'.format(column_data)
             element += td_ele
+            counter +=1
     else:
         td_ele = '<td>{}</td>'.format(obj)
         element += td_ele
@@ -128,9 +130,14 @@ def get_orderable_column(admin_class, current_order_column):
         for column in admin_class.list_display:
             if column in current_order_column:
                 current_index = -int(current_order_column[column])
+                if current_index >= 0:
+                    order_mark = """<span class="glyphicon glyphicon-triangle-bottom" aria-hidden="true"></span>"""
+                else:
+                    order_mark = """<span class="glyphicon glyphicon-triangle-top" aria-hidden="true"></span>"""
             else:
                 current_index = counter
-            th_element += """<th><a href="?_o=%s">%s</a></th>""" % (current_index, column)
+                order_mark = """"""
+            th_element += """<th><a href="?_o=%s">%s %s</a></th>""" % (current_index, column,order_mark)
             counter +=1
 
     else:
