@@ -1,28 +1,31 @@
 {% extends 'kmain.html' %}
-{% block showsiderbar %}
-{% endblock %}
+{% load kadmin_tags %}
 {% block showinfomation %}
-        <div class="panel panel-info" style="margin: 20px;">
+    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+        <div class="panel panel-info">
             <div class="panel-heading">
-                <h3 class="panel-title">{{queryset}}</h3>
+                <h3 class="panel-title">{{ queryset }}</h3>
             </div>
             <div class="panel-body">
                 <table class="table table-striped">
                     <thead>
                     <tr>
-                        <th>Table Name</th>
-                        <th>ADD</th>
-                        <th>Change</th>
+                        {% for column in admin_class.list_display %}
+                            <th>{{ column }}</th>
+                        {% endfor %}
                     </tr>
                     </thead>
                     <tbody>
-                    <tr>
-                        <td>q</td>
-                        <td>Add</td>
-                        <td>Change</td>
-                    </tr>
+
+                    {% for obj in queryset %}
+                        <tr>
+                            {% build_table_row obj admin_class %}
+                        </tr>
+                    {% endfor %}
+
                     </tbody>
                 </table>
             </div>
         </div>
+    </div>
 {% endblock %}
