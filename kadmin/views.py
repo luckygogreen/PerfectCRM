@@ -17,17 +17,29 @@ def kevin_index(request):
     # print(conf.settings.INSTALLED_APPS)
     return render(request, 'kindex.html', {'ksite': ksite})
 
+#排序
+def get_orderby_result(request,queryset,admin_class):
+    current_order_column={}
+    order_index = request.GET.get('_o')
+    if order_index:
+        orderby_key = admin_class.list_display[int(order_index)]
+        current_order_column[orderby_key] = order_index #让前段知道当前排序的列
+        return queryset.order_by(orderby_key),current_order_column
+    else:
+        return queryset,current_order_column
+
+
 def get_filter_result(request,queryset):
     filter_condition = {}
     for k,v in request.GET.items():
-        if k =='_kpage':continue
+        if k in ('_kpage','_o'):continue
         if v:
             filter_condition[k]=v
     print('filter_condition:',filter_condition)
     return queryset.filter(**filter_condition),filter_condition
 
 @login_required
-def table_obj_list(request, appname, modelname,show_items_per_page=2):
+def table_obj_list(request, appname, modelname,show_items_per_page=10):
     """取出指定Model table里的数据，返回给前端"""
     # print(ksite.enabled_admins[appname][modelname])  # <class 'crm.kingadmin.admin_CustomerInfo'>
     # print(ksite.enabled_admins[appname][modelname].list_display)  # ['id', 'name', 'phone', 'address', 'wechat_or_other', 'source', 'cunsultant', 'status', 'date']
@@ -37,11 +49,20 @@ def table_obj_list(request, appname, modelname,show_items_per_page=2):
     queryset,filter_condition = get_filter_result(request,queryset)
     admin_class.filter_condition = filter_condition
 
-    paginator = Paginator(queryset, show_items_per_page)  # Show 25 contacts per page
+    queryset,current_order_column = get_orderby_result(request,queryset,admin_class) #排序
+
+    paginator = Paginator(queryset, show_items_per_page)  # 分页
     page = request.GET.get('_kpage')
     queryset = paginator.get_page(page)
 
-    return render(request,'table_object_list.html',{'queryset':queryset,'admin_class':admin_class,'appname':appname,'modelname':modelname,'show_items_per_page':show_items_per_page})
+    return render(request,
+                  'table_object_list.html',
+                  {'queryset':queryset,
+                   'admin_class':admin_class,
+                   'appname':appname,
+                   'modelname':modelname,
+                   'show_items_per_page':show_items_per_page,
+                   'current_order_column':current_order_column})
 
 def kuser_login(request):
     error_message = ''
