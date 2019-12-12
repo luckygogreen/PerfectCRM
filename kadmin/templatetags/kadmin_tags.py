@@ -77,13 +77,13 @@ def build_filter_element(filter_column, admin_class):
 
 @register.simple_tag
 def render_paginator_button(queryset, total_display_page):
-    print('queryset.number:',queryset.number)
-    print('total_display_page:',total_display_page)
-    print('queryset.paginator.num_pages:',queryset.paginator.num_pages)
-    print('queryset.has_previous:',queryset.has_previous())
-    print('queryset.has_next:',queryset.has_next())
-    print('queryset.previous_page_number:',queryset.previous_page_number)
-    print('queryset.next_page_number:',queryset.next_page_number)
+    print('【当前页】queryset.number:',queryset.number)
+    print('【总共显示多少页】total_display_page:',total_display_page)
+    print('【一共多少页】queryset.paginator.num_pages:',queryset.paginator.num_pages)
+    print('【是否有上一页】queryset.has_previous:',queryset.has_previous())
+    print('【是否有下一页】queryset.has_next:',queryset.has_next())
+    print('【上一页】queryset.previous_page_number:',queryset.previous_page_number)
+    print('【下一页】queryset.next_page_number:',queryset.next_page_number)
     ele = """
     <nav aria-label="Page navigation">
                     <ul class="pagination pagination-sm">
