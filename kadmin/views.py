@@ -3,6 +3,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from kadmin import kadd_stepup
+from django.db.models import Q
 kadd_stepup.kadmin_auto_deicover()
 from kadmin.ksites import ksite
 # print('ksite:',ksite.enabled_admins) #{'crm': {'customerinfo': <class 'crm.kingadmin.admin_CustomerInfo'>, 'menus': <class 'crm.kingadmin.Admin_Menus'>, 'role': <class 'kadmin.kadmin_base.BaseKadmin'>}, 'student': {'test': <class 'student.kingadmin.AdminTest'>}}
@@ -16,6 +17,21 @@ for k,v in ksite.enabled_admins.items():
 def kevin_index(request):
     # print(conf.settings.INSTALLED_APPS)
     return render(request, 'kindex.html', {'ksite': ksite})
+
+
+#搜索
+def get_search_result(request,queryset,admin_class):
+    search_key = request.GET.get('_q')
+    if search_key:
+        q=Q()
+        q.connector = 'or'
+        for search_filed in admin_class.search_fields:
+            q.children.append(('%s__contains' % search_filed,search_key ))  # q.children.append 里面必须是元祖
+            print("q.children.append(('%s__contains' % search_filed,search_key )):",q.children.append(('%s__contains' % search_filed,search_key )))
+        return queryset.filter(q)
+
+
+
 
 #排序
 # str.startswith('-') #判断 字符串是否以减号开头
@@ -39,7 +55,7 @@ def get_orderby_result(request,queryset,admin_class):
 def get_filter_result(request,queryset):
     filter_condition = {}
     for k,v in request.GET.items():
-        if k in ('_kpage','_o'):continue
+        if k in ('_kpage','_o','_q'):continue
         if v:
             filter_condition[k]=v
     print('filter_condition:',filter_condition)
@@ -56,9 +72,11 @@ def table_obj_list(request, appname, modelname,show_items_per_page=2):
     queryset,filter_condition = get_filter_result(request,queryset) #筛选
     admin_class.filter_condition = filter_condition
 
+    # queryset = get_search_result(request, queryset, admin_class)  # 搜索
     queryset,current_order_column = get_orderby_result(request,queryset,admin_class) #排序
 
     paginator = Paginator(queryset, show_items_per_page)  # 分页
+
     page = request.GET.get('_kpage')
     queryset = paginator.get_page(page)
 
