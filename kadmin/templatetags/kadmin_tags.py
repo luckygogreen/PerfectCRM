@@ -169,3 +169,13 @@ def get_order_number(current_order_column):
         for k,v in current_order_column.items():
             order_index = v
     return order_index
+
+@register.simple_tag
+def pleace_holder_search(admin_class):
+    pleace_holder = ''
+    if admin_class.search_fields:
+        for i in admin_class.search_fields:
+            pleace_holder += '%s,'% i
+    else:
+        pleace_holder='Nothing to search'
+    return pleace_holder

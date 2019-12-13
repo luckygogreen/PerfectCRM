@@ -24,7 +24,12 @@
                     <td>
                         <div>
                             <form>
-                                <input type="text" name="_q" />
+                                <input style="width: 260px;" type="text" name="_q" value="{{ admin_class.search_key }}" placeholder="{% pleace_holder_search admin_class %}">
+                                <input type="hidden" name="_o" value="{% get_order_number current_order_column %}">
+                                {% for k,v in admin_class.filter_condition.items %}
+                                    <input type="hidden" name="{{ k }}" value="{{ v }}">
+                                {% endfor %}
+
                                 <input type="submit" value="Search!">
                             </form>
                         </div>
