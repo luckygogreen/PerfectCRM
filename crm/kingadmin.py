@@ -3,7 +3,7 @@ from crm import models
 from kadmin.kadmin_base import BaseKadmin
 
 
-print('测试 crm 下的Kingadmin')
+print('crm下的Kingadmin已经被执行')
 
 
 class admin_CustomerInfo(BaseKadmin):

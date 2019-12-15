@@ -1,0 +1,13 @@
+{% extends 'kmain.html' %}
+{% load kadmin_tags %}
+{% block showsiderbar %}{% endblock %}
+{% block showinfomation %}
+    <div class="panel panel-info" style="margin: 30px;">
+        <div class="panel-heading">
+            <div><h3 class="panel-title"><a href="/kadmin/">{{ appname }}</a>-->><a href="/kadmin/{{ appname }}/{{ modelname }}/">{{ modelname }}</a>【Change Table[{{ modelname }}] information】</h3></div>
+        </div>
+        <div class="panel-body">
+            {{ customerForm }}
+        </div>
+    </div>
+{% endblock %}

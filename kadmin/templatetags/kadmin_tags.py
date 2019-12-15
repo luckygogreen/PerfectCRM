@@ -12,27 +12,30 @@ def get_model_name(admin_class):
 
 
 @register.simple_tag
-def build_table_row(obj, admin_class):
+def build_table_row(obj, admin_class, appname, modelname):
     """应用反射生产一条记录的element"""
     element = ''
     if admin_class.list_display:
         counter = 1
-        for column in admin_class.list_display:
+        for index, column in enumerate(admin_class.list_display):
             column_obj = admin_class.model._meta.get_field(column)
             if column_obj.choices:
                 column_data = getattr(obj, 'get_{}_display'.format(column))()
             else:
                 column_data = getattr(obj, column)
-            td_ele = '<td>{}</td>'.format(column_data)
+            if index == 0:
+                td_ele = '<td><a href="{}/change/">{}</a></td>'.format(obj.id, column_data)
+            else:
+                td_ele = '<td>{}</td>'.format(column_data)
             element += td_ele
             counter += 1
     else:
-        td_ele = '<td>{}</td>'.format(obj)
+        td_ele = '<td><a href="{}/change/">{}</a></td>'.format(obj.id, obj)
         element += td_ele
     return mark_safe(element)
 
 
-@register.simple_tag #筛选
+@register.simple_tag  # 筛选
 def build_filter_element(filter_column, admin_class):
     column_obj = admin_class.model._meta.get_field(filter_column)
     try:
@@ -113,8 +116,8 @@ def render_paginator_button(queryset, admin_class, current_order_column, total_d
                     </ul>
                 </nav>
                 """ % (
-        queryset.next_page_number(), filter_element, order_column, queryset.paginator.num_pages, filter_element,
-        order_column)
+            queryset.next_page_number(), filter_element, order_column, queryset.paginator.num_pages, filter_element,
+            order_column)
     else:
         ele += """</ul>"""
     return mark_safe(ele)
@@ -131,13 +134,13 @@ def get_filter_element(admin_class):
 def get_current_order_column(current_order_column):
     order_column = ''
     if current_order_column:
-        for k,v in current_order_column.items():
+        for k, v in current_order_column.items():
             order_column += '&_o=%s' % v
     return order_column
 
 
 @register.simple_tag  # 生产排序列头
-def get_orderable_column(admin_class, current_order_column):
+def build_table_head(admin_class, current_order_column):
     # 获取筛选的筛选的表单结果
     filter_element = get_filter_element(admin_class)
 
@@ -162,20 +165,22 @@ def get_orderable_column(admin_class, current_order_column):
         th_element = """<th>%s</th>""" % admin_class.model._meta.model_name.upper()
     return mark_safe(th_element)
 
-@register.simple_tag #获取排序的键值对
+
+@register.simple_tag  # 获取排序的键值对
 def get_order_number(current_order_column):
     order_index = ''
     if current_order_column:
-        for k,v in current_order_column.items():
+        for k, v in current_order_column.items():
             order_index = v
     return order_index
+
 
 @register.simple_tag
 def pleace_holder_search(admin_class):
     pleace_holder = ''
     if admin_class.search_fields:
         for i in admin_class.search_fields:
-            pleace_holder += '%s,'% i
+            pleace_holder += '%s,' % i
     else:
-        pleace_holder='Nothing to search'
+        pleace_holder = 'Nothing to search'
     return pleace_holder

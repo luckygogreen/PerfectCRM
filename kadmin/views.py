@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
+from kadmin import dynamic_form
 from kadmin import kadd_stepup
 from django.db.models import Q
 
@@ -12,7 +13,7 @@ from kadmin.ksites import ksite
 for k, v in ksite.enabled_admins.items():
     for table_name, admin_class in v.items():
         pass
-        # print(table_name,':',id(admin_class))  # 打印admin_class 的内存地址
+        # print(table_name, ':', id(admin_class))  # 打印admin_class 的内存地址
 
 
 @login_required
@@ -29,9 +30,9 @@ def get_search_result(request, queryset, admin_class):
         q.connector = 'or'
         for search_filed in admin_class.search_fields:
             q.children.append(('%s__icontains' % search_filed, search_key))  # q.children.append 里面必须是元祖
-        return queryset.filter(q),search_key
+        return queryset.filter(q), search_key
     else:
-        search_key=''
+        search_key = ''
         return queryset, search_key
 
 
@@ -64,7 +65,7 @@ def get_filter_result(request, queryset):
     return queryset.filter(**filter_condition), filter_condition
 
 
-@login_required
+@login_required  # 显示数据
 def table_obj_list(request, appname, modelname, show_items_per_page=2):
     """取出指定Model table里的数据，返回给前端"""
     # print(ksite.enabled_admins[appname][modelname])  # <class 'crm.kingadmin.admin_CustomerInfo'>
@@ -74,16 +75,12 @@ def table_obj_list(request, appname, modelname, show_items_per_page=2):
     queryset = admin_class.model.objects.all()
     queryset, filter_condition = get_filter_result(request, queryset)  # 筛选
     admin_class.filter_condition = filter_condition
-
     queryset, search_key = get_search_result(request, queryset, admin_class)  # 搜索
     admin_class.search_key = search_key
     queryset, current_order_column = get_orderby_result(request, queryset, admin_class)  # 排序
-
     paginator = Paginator(queryset, show_items_per_page)  # 分页
-
     page = request.GET.get('_kpage')
     queryset = paginator.get_page(page)
-
     return render(request,
                   'table_object_list.html',
                   {'queryset': queryset,
@@ -92,6 +89,20 @@ def table_obj_list(request, appname, modelname, show_items_per_page=2):
                    'modelname': modelname,
                    'show_items_per_page': show_items_per_page,
                    'current_order_column': current_order_column})
+
+
+@login_required  # 修改数据
+def table_obj_change(request, appname, modelname, changeid):
+    """修改显示列表，返回的要修改的数"""
+    admin_class = ksite.enabled_admins[appname][modelname]
+    model_form = dynamic_form.create_dynamic_model_form(admin_class)
+
+    return render(request,
+                  'table_object_change.html',
+                  locals(),
+                  {'appname': appname,
+                   'modelname': modelname}
+                  )
 
 
 def kuser_login(request):

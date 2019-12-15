@@ -7,7 +7,7 @@
             <table>
                 <tr>
                     <td>
-                        <div><h3 class="panel-title">{{ appname }}-->>{{ modelname }}</h3></div>
+                        <div><h3 class="panel-title"><a href="/kadmin/">{{ appname }}</a>-->>{{ modelname }}</h3></div>
                     </td>
                     <td>
                         <div style="margin-left: 20px;margin-right: 20px;">{% if admin_class.list_filter %}
@@ -24,7 +24,8 @@
                     <td>
                         <div>
                             <form>
-                                <input style="width: 260px;" type="text" name="_q" value="{{ admin_class.search_key }}" placeholder="{% pleace_holder_search admin_class %}">
+                                <input style="width: 260px;" type="text" name="_q" value="{{ admin_class.search_key }}"
+                                       placeholder="{% pleace_holder_search admin_class %}">
                                 <input type="hidden" name="_o" value="{% get_order_number current_order_column %}">
                                 {% for k,v in admin_class.filter_condition.items %}
                                     <input type="hidden" name="{{ k }}" value="{{ v }}">
@@ -41,14 +42,14 @@
             <table class="table table-striped">
                 <thead>
                 <tr><!--表列头排序-->
-                    {% get_orderable_column admin_class current_order_column %}
+                    {% build_table_head admin_class current_order_column %}
                 </tr>
                 </thead>
                 <tbody>
 
                 {% for obj in queryset %}
                     <tr>
-                        {% build_table_row obj admin_class %}
+                        {% build_table_row obj admin_class appname modelname %}
                     </tr>
                 {% endfor %}
 
