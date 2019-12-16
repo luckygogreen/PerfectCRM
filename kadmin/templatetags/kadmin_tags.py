@@ -24,13 +24,13 @@ def build_table_row(obj, admin_class, appname, modelname):
             else:
                 column_data = getattr(obj, column)
             if index == 0:
-                td_ele = '<td><a href="{}/change/">{}</a></td>'.format(obj.id, column_data)
+                td_ele = '<td><input row-select="true" type="checkbox" value="{}"></td><td><a href="{}/change/">{}</a></td>'.format(obj.id,obj.id, column_data)
             else:
-                td_ele = '<td>{}</td>'.format(column_data)
+                td_ele = '</td><td>{}</td>'.format(column_data)
             element += td_ele
             counter += 1
     else:
-        td_ele = '<td><a href="{}/change/">{}</a></td>'.format(obj.id, obj)
+        td_ele = '<td><input type="checkbox" value=""></td><td><a href="{}/change/">{}</a></td>'.format(obj.id,obj.id, obj)
         element += td_ele
     return mark_safe(element)
 
@@ -144,7 +144,7 @@ def build_table_head(admin_class, current_order_column):
     # 获取筛选的筛选的表单结果
     filter_element = get_filter_element(admin_class)
 
-    th_element = ''
+    th_element = '<th><input type="checkbox" onclick="SelectAllObjs(this)"></th>'
     if admin_class.list_display:
         counter = 1
         for column in admin_class.list_display:
@@ -184,3 +184,61 @@ def pleace_holder_search(admin_class):
     else:
         pleace_holder = 'Nothing to search'
     return pleace_holder
+
+
+@register.simple_tag
+def get_field_value(form_obj, field):
+    """返回不可修改字段，在前段的显示值"""
+    return getattr(form_obj.instance, field)
+
+
+@register.simple_tag
+def get_avilable_m2m_data(admin_class, column_name, form_obj):
+    """返回的是many to many 关联表的所有数据"""
+    filed_obj = admin_class.model._meta.get_field(column_name)
+    set1 = set(filed_obj.related_model.objects.all())
+    if form_obj.instance.id:
+        set2 = set(getattr(form_obj.instance, column_name).all())
+        obj_list = set1 - set2  # set 交集，差集的知识
+        return obj_list
+    else:
+        return set1
+
+
+@register.simple_tag
+def get_selected_m2m_data(admin_class, column_name, form_obj):
+    """返回已选的many to many 的数据"""
+    if form_obj.instance.id:
+        seleted_data = getattr(form_obj.instance, column_name).all()
+        return seleted_data
+    else:
+        return []
+
+
+@register.simple_tag
+def display_all_related_objs(obj):
+    """
+    显示要被删除对象的所有关联对象
+    :param obj:
+    :return:
+    """
+    ele = "<ul>"
+    print(obj._meta.related_objects)
+    for reversed_fk_obj in obj._meta.related_objects:
+        related_table_name = reversed_fk_obj.name
+        related_lookup_key = "%s_set" % related_table_name
+        related_objs = getattr(obj, related_lookup_key).all()  # 反向查所有关联的数据
+        ele += "<li>%s<ul> " % related_table_name
+        if reversed_fk_obj.get_internal_type() == "ManyToManyField":  # 不需要深入查找
+            for i in related_objs:
+                ele += "<li><a href='/kadmin/%s/%s/%s/change/'>%s</a> 记录里与[%s]相关的的数据将被删除</li>" \
+                       % (i._meta.app_label, i._meta.model_name, i.id, i, obj)
+        else:
+            for i in related_objs:
+                ele += "<li><a href='/kadmin/%s/%s/%s/change/'>%s</a></li>" % (i._meta.app_label,
+                                                                                  i._meta.model_name,
+                                                                                  i.id, i)
+                ele += display_all_related_objs(i)
+        ele += "</ul></li>"
+    ele += "</ul>"
+    return ele

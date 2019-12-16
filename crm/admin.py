@@ -8,7 +8,11 @@ class admin_CustomerInfo(admin.ModelAdmin):
     list_filter = ['source','cunsultant','consult_course','status','date']
     search_fields = ['id','name','phone','cunsultant__name']
     list_editable = ['source','status']
-
+    readonly_fields = ['status','cunsultant']
+    filter_horizontal = ['consult_course']
+    actions = ['change_status',]
+    def change_status(self,request,queryset):
+        queryset.update(status = 2)
 
 admin.site.register(models.CustomerInfo,admin_CustomerInfo)
 admin.site.register(models.CustomerFollowUp)

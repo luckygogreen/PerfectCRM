@@ -1,0 +1,77 @@
+{% load kadmin_tags %}
+<!--onsubmit 在提交表单之前运行-->
+<form class="form-horizontal" method="post" onsubmit="VerificationBeforeFormSubmit()">{% csrf_token %}
+    {% for column in form_obj %}
+        <div class="form-group row">
+            <label for="inputEmail3" class="col-sm-2 col-form-label">{{ column.label }}</label>
+            {% if column.name in admin_class.filter_horizontal %}
+                <div class="col-lg-3">
+                    {#                    <div class="panel panel-info">#}
+                    {#                        <div class="panel-heading">Available</div>#}
+                    {#                        <div class="input-group">#}
+                    {#                            <span class="input-group-addon" id="basic-addon1">Search</span>#}
+                    <input type="search" class="form-control" oninput="FuzzSearch(this)">
+                    {#                        </div>#}
+                    {#                        <div class="panel-body">#}
+                    <select id="id_{{ column.name }}_from" multiple class="form-control">
+                        {% get_avilable_m2m_data admin_class column.name form_obj as obj_list %}
+                        {% for obj in obj_list %}
+                            <option ondblclick="MoveSelectedOption(this,'id_{{ column.name }}_to')"
+                                    value="{{ obj.id }}" name="">{{ obj }}</option>
+                        {% endfor %}
+                    </select>
+                    <a class="pull-right" style="cursor: pointer"
+                       onclick="MoveAllElements('id_{{ column.name }}_from', 'id_{{ column.name }}_to')">
+                        Choose_all</a>
+                    {#                        </div>#}
+                    {#                    </div>#}
+                </div>
+                <div class="col-lg-3">
+                    <div class="panel panel-info">
+                        <div class="panel-heading">Chosen</div>
+                        <div class="panel-body">
+                            <select tag="selected_m2m" name="{{ column.name }}" id="id_{{ column.name }}_to" multiple
+                                    class="form-control">
+                                {% get_selected_m2m_data admin_class column.name form_obj as obj_select %}
+                                {% for obj in obj_select %}
+                                    <option ondblclick="MoveSelectedOption(this,'id_{{ column.name }}_from')"
+                                            value="{{ obj.id }}" name="">{{ obj }}</option>
+                                {% endfor %}
+                            </select>
+                            <a class="pull-right" style="cursor: pointer"
+                               onclick="MoveAllElements('id_{{ column.name }}_to', 'id_{{ column.name }}_from')">
+                                Remove_all</a>
+                        </div>
+                    </div>
+
+                </div>
+            {% else %}
+                <div class="col-sm-10">
+                    {{ column }}
+                    <span style="color: red">{{ column.errors.0 }}</span>
+                </div>
+            {% endif %}
+        </div>
+    {% endfor %} <!--如果是修改表单，则显示内容，但是不可以编辑 -->
+    {% if not admin_class.form_add %}
+        {% for field in admin_class.readonly_fields %}
+            <div class="form-group row">
+            <label for="inputEmail3" class="col-sm-2 col-form-label">{{ field }}</label>
+            <div class="col-sm-10">
+                <p>{% get_field_value form_obj field %}</p>
+            </div>
+        {% endfor %}
+    {% endif %}
+    <div class="form-group row">
+        {% if form_obj.instance.id %}
+            <div class="col-sm-offset-1">
+                <a href="{% url 'table_obj_delete' appname modelname form_obj.instance.id %}" type="submit"
+                   class="btn btn-danger">Delete</a>
+            </div>
+        {% endif %}
+
+        <div class="col-sm-offset-11">
+            <button type="submit" class="btn btn-info">Save</button>
+        </div>
+    </div>
+</form>

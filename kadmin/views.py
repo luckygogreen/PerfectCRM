@@ -1,10 +1,11 @@
+import json
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from kadmin import dynamic_form
 from kadmin import kadd_stepup
 from django.db.models import Q
+from kadmin import dynamic_form
 
 kadd_stepup.kadmin_auto_deicover()
 from kadmin.ksites import ksite
@@ -66,19 +67,29 @@ def get_filter_result(request, queryset):
 
 
 @login_required  # 显示数据
-def table_obj_list(request, appname, modelname, show_items_per_page=2):
+def table_obj_list(request, appname, modelname):
     """取出指定Model table里的数据，返回给前端"""
     # print(ksite.enabled_admins[appname][modelname])  # <class 'crm.kingadmin.admin_CustomerInfo'>
     # print(ksite.enabled_admins[appname][modelname].list_display)  # ['id', 'name', 'phone', 'address', 'wechat_or_other', 'source', 'cunsultant', 'status', 'date']
     # print(ksite.enabled_admins[appname][modelname].model.objects.all())  # <QuerySet [<CustomerInfo: 大海>, <CustomerInfo: 大地>, <CustomerInfo: 大气>]>
     admin_class = ksite.enabled_admins[appname][modelname]
-    queryset = admin_class.model.objects.all()
+    if request.method == "POST":
+        print('request.POST:',request.POST)
+        selected_action = request.POST.get('action')
+        selected_ids = json.loads(request.POST.get('selected_ids') )
+        # print('selected_action:',selected_action)
+        # print('selected_ids:',selected_ids)
+
+        selected_objs = admin_class.model.objects.filter(id__in=selected_ids)
+        admin_action_func = getattr(admin_class,selected_action)
+        admin_action_func(request,selected_objs)
+    queryset = admin_class.model.objects.all().order_by('-id')
     queryset, filter_condition = get_filter_result(request, queryset)  # 筛选
     admin_class.filter_condition = filter_condition
     queryset, search_key = get_search_result(request, queryset, admin_class)  # 搜索
     admin_class.search_key = search_key
     queryset, current_order_column = get_orderby_result(request, queryset, admin_class)  # 排序
-    paginator = Paginator(queryset, show_items_per_page)  # 分页
+    paginator = Paginator(queryset, admin_class.list_per_page)  # 分页
     page = request.GET.get('_kpage')
     queryset = paginator.get_page(page)
     return render(request,
@@ -87,7 +98,7 @@ def table_obj_list(request, appname, modelname, show_items_per_page=2):
                    'admin_class': admin_class,
                    'appname': appname,
                    'modelname': modelname,
-                   'show_items_per_page': show_items_per_page,
+                   'show_items_per_page': admin_class.list_per_page,
                    'current_order_column': current_order_column})
 
 
@@ -96,14 +107,38 @@ def table_obj_change(request, appname, modelname, changeid):
     """修改显示列表，返回的要修改的数"""
     admin_class = ksite.enabled_admins[appname][modelname]
     model_form = dynamic_form.create_dynamic_model_form(admin_class)
+    model_obj = admin_class.model.objects.get(id=changeid)
+    if request.method == 'GET':
+        form_obj = model_form(instance=model_obj)
+    elif request.method == 'POST':
+        form_obj = model_form(instance=model_obj, data=request.POST)
+        if form_obj.is_valid():
+            form_obj.save()
+            return redirect('/kadmin/%s/%s/' % (appname, modelname))
 
-    return render(request,
-                  'table_object_change.html',
-                  locals(),
-                  {'appname': appname,
-                   'modelname': modelname}
-                  )
+    return render(request, 'table_object_change.html', locals())
 
+@login_required
+def table_obj_add(request,appname,modelname):
+    admin_class = ksite.enabled_admins[appname][modelname]
+    model_form = dynamic_form.create_dynamic_model_form(admin_class, form_add=True)
+    if request.method == 'GET':
+        form_obj = model_form()
+    elif request.method == 'POST':
+        form_obj = model_form(data=request.POST)
+        if form_obj.is_valid():
+            form_obj.save()
+        return redirect('/kadmin/%s/%s/' % (appname, modelname))
+    return render(request,'table_obj_add.html',locals())
+
+@login_required
+def table_obj_delete(request,appname,modelname,delete_id):
+    admin_class = ksite.enabled_admins[appname][modelname]
+    delete_obj = admin_class.model.objects.get(id=delete_id)
+    if request.method == 'POST':
+        delete_obj.delete()
+        return redirect('/kadmin/%s/%s/'% (appname,modelname))
+    return render(request,'table_object_delete.html',locals())
 
 def kuser_login(request):
     error_message = ''

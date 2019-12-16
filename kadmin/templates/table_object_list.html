@@ -35,13 +35,32 @@
                             </form>
                         </div>
                     </td>
+                    <td>
+                        <div><a href="add/">Add</a></div>
+                    </td>
                 </tr>
             </table>
         </div>
         <div class="panel-body">
+            <form onsubmit="return ActionCheck(this)" method="post">{% csrf_token %}
+                <div class="row">
+                    <div class="col-lg-3">
+                        <select class="form-control" name="action">
+                            <option value="">---------</option>
+                            {% for action in admin_class.actions %}
+                                <option value="{{ action }}">{{ action }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-lg-2">
+                        <input type="submit" value="GO">
+                    </div>
+                </div>
+            </form>
             <table class="table table-striped">
                 <thead>
                 <tr><!--表列头排序-->
+
                     {% build_table_head admin_class current_order_column %}
                 </tr>
                 </thead>

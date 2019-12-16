@@ -1,0 +1,27 @@
+{% extends 'kmain.html' %}
+{% load kadmin_tags %}
+{% load kadmin_tags %}
+{% block showsiderbar %}{% endblock %}
+{% block showinfomation %}
+    <div class="panel panel-info" style="margin: 30px;">
+        <div class="panel-heading">
+            <div><h3 class="panel-title"><a href="/kadmin/">{{ appname }}</a>-->><a
+                    href="/kadmin/{{ appname }}/{{ modelname }}/">【{{ modelname }}】</a>{{ form_obj.errors }}</h3>
+            </div>
+        </div>
+        <div class="panel-body">
+            <h2>Are you sure?</h2>
+            <h5>Are you sure you want to delete the customer info <h3>"{{ delete_obj }}"?</h3> All of the following
+                related items will be deleted:
+            </h5>
+            <div>
+                {% display_all_related_objs delete_obj as all_related_obj_eles %}
+                {{ all_related_obj_eles|safe }}
+                <form method="post">{% csrf_token %}
+                    <input type="submit" class="btn btn-danger" value="Delete">
+                    <a href="/kadmin/{{ appname }}/{{ modelname }}/" class="btn btn-info">Back</a>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

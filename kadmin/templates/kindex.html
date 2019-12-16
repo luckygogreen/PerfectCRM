@@ -19,8 +19,8 @@
                         {% for modelname in tablename %}
                             <tr>
                                 <td><a href="{% url 'table_obj_list' appname modelname %}">{{ modelname }}</a></td>
-                                <td>Add</td>
-                                <td>Change</td>
+                                <td><a href="{% url 'table_obj_add' appname modelname %}">Add</a></td>
+                                <td><a href="{% url 'table_obj_list' appname modelname %}">Change</a></td>
                             </tr>
                         {% endfor %}
                         </tbody>
