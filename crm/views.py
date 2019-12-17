@@ -14,4 +14,6 @@ def customers(request):
 @login_required
 def stu_enrollment(request):
     print('程序运行到了stu_enrollment')
+    geturl = request.get_port()
+    print(geturl)
     return render(request, 'crm/stu_enrollment.html')
