@@ -1,4 +1,7 @@
-from django.shortcuts import render,redirect,HttpResponse
+import json
+
+from django.shortcuts import render
+
 
 
 class BaseKadmin(object):
@@ -16,4 +19,8 @@ class BaseKadmin(object):
     actions = []
 
     def delete_selected_objs(self, request, querysets):
-        return render(request, 'kadmin/table_obj_delete.html')
+        querysets_ids = json.dumps([i.id for i in querysets])
+        return render(request, 'table_object_delete.html', {'admin_class': self,
+                                                                   'objs': querysets,
+                                                                   'querysets_ids': querysets_ids
+                                                                   })

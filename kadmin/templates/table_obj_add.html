@@ -4,8 +4,12 @@
 {% block showinfomation %}
     <div class="panel panel-info" style="margin: 30px;">
         <div class="panel-heading">
-            <div><h3 class="panel-title"><a href="/kadmin/">{{ appname }}</a>-->><a
-                    href="/kadmin/{{ appname }}/{{ modelname }}/">修改【{{ modelname }}】</a>{{ form_obj.errors }}</h3></div>
+            <ol class="breadcrumb">
+                <li><a href="/kadmin/">All</a></li>
+                <li><a href="/kadmin/{{appname}}/">{{ appname }}</a></li>
+                <li><a href="/kadmin/{{ appname }}/{{ modelname }}">{% get_model_verbose_name admin_class %}</a></li>
+                <li class="active">Add {{ modelname }}</li>
+            </ol>
         </div>
         <div class="panel-body">
             {% include 'table_obj_form_base.html' %}

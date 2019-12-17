@@ -54,6 +54,9 @@ class CustomerInfo(models.Model):
 
     def __str__(self):
         return self.name
+    class Meta:
+        verbose_name_plural = '客户信息表：CustomerInfo'
+        verbose_name = '客户信息表：CustomerInfo'
 
 
 class Student(models.Model):

@@ -2,12 +2,11 @@
 {% block showsiderbar %}{% endblock %}
 {% block showinfomation %}
         <div class="panel panel-info" style="margin: 30px;"> <!--if showsiderbar is work ,just delete this panel-->
-    <div></div>
-        {% for appname,tablename in ksite.enabled_admins.items %}
             <div class="panel panel-info">
                 <div class="panel-heading">
                     <ol class="breadcrumb">
-                        <li class="active"><a href="{% url 'app_table' appname %}">{{ appname }}</a></li>
+                        <li><a href="/kadmin/">All</a></li>
+                        <li class="active">{{ appname }}</li>
                     </ol>
                 </div>
                 <div class="panel-body">
@@ -20,7 +19,7 @@
                         </tr>
                         </thead>
                         <tbody>
-                        {% for modelname in tablename %}
+                        {% for modelname in showapp %}
                             <tr>
                                 <td><a href="{% url 'table_obj_list' appname modelname %}">{{ modelname }}</a></td>
                                 <td><a href="{% url 'table_obj_add' appname modelname %}">Add</a></td>
@@ -31,6 +30,5 @@
                     </table>
                 </div>
             </div>
-        {% endfor %}
     </div>
 {% endblock %}

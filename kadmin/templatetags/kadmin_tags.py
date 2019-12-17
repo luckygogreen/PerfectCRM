@@ -222,7 +222,7 @@ def display_all_related_objs(obj):
     :param obj:
     :return:
     """
-    ele = "<ul>"
+    ele = "<ul><b style='color:red'>%s</b>" % obj
     print(obj._meta.related_objects)
     for reversed_fk_obj in obj._meta.related_objects:
         related_table_name = reversed_fk_obj.name
@@ -242,3 +242,7 @@ def display_all_related_objs(obj):
         ele += "</ul></li>"
     ele += "</ul>"
     return ele
+
+@register.simple_tag
+def get_model_verbose_name(admin_class):
+    return admin_class.model._meta.verbose_name

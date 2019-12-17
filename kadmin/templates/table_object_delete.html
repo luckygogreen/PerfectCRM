@@ -5,20 +5,20 @@
 {% block showinfomation %}
     <div class="panel panel-info" style="margin: 30px;">
         <div class="panel-heading">
-            <div><h3 class="panel-title"><a href="/kadmin/">{{ appname }}</a>-->><a
-                    href="/kadmin/{{ appname }}/{{ modelname }}/">【{{ modelname }}】</a>{{ form_obj.errors }}</h3>
-            </div>
+            <h2 class="page-header">{% get_model_name admin_class %}</h2>
+            <h4 class="page-header alert-danger">注意:以下与{{ objs }}相关联的数据都将被删除!</h4>
         </div>
         <div class="panel-body">
-            <h2>Are you sure?</h2>
-            <h5>Are you sure you want to delete the customer info <h3>"{{ delete_obj }}"?</h3> All of the following
-                related items will be deleted:
-            </h5>
             <div>
-                {% display_all_related_objs delete_obj as all_related_obj_eles %}
-                {{ all_related_obj_eles|safe }}
+                {% for obj in objs %}
+                    {% display_all_related_objs obj as all_related_obj_eles %}
+                    {{ all_related_obj_eles|safe }}
+                {% endfor %}
                 <form method="post">{% csrf_token %}
-                    <input type="submit" class="btn btn-danger" value="Delete">
+                    {% if querysets_ids %}
+                        <input type="hidden" name="selected_ids" value="{{ querysets_ids }}">
+                    {% endif %}
+                    <input type="submit" class="btn btn-danger" value="确认删除">
                     <a href="/kadmin/{{ appname }}/{{ modelname }}/" class="btn btn-info">Back</a>
                 </form>
             </div>

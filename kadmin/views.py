@@ -22,6 +22,12 @@ def kevin_index(request):
     # print(conf.settings.INSTALLED_APPS)
     return render(request, 'kindex.html', {'ksite': ksite})
 
+def kapp(request,appname):
+    print(appname)
+    showapp = ksite.enabled_admins.get(appname)
+    print(showapp)
+    return render(request,'kapp.html',{'showapp': showapp,'appname':appname})
+
 
 # 搜索
 def get_search_result(request, queryset, admin_class):
@@ -72,17 +78,22 @@ def table_obj_list(request, appname, modelname):
     # print(ksite.enabled_admins[appname][modelname])  # <class 'crm.kingadmin.admin_CustomerInfo'>
     # print(ksite.enabled_admins[appname][modelname].list_display)  # ['id', 'name', 'phone', 'address', 'wechat_or_other', 'source', 'cunsultant', 'status', 'date']
     # print(ksite.enabled_admins[appname][modelname].model.objects.all())  # <QuerySet [<CustomerInfo: 大海>, <CustomerInfo: 大地>, <CustomerInfo: 大气>]>
+
     admin_class = ksite.enabled_admins[appname][modelname]
     if request.method == "POST":
-        print('request.POST:',request.POST)
+        print(request.POST)
         selected_action = request.POST.get('action')
-        selected_ids = json.loads(request.POST.get('selected_ids') )
-        # print('selected_action:',selected_action)
-        # print('selected_ids:',selected_ids)
-
-        selected_objs = admin_class.model.objects.filter(id__in=selected_ids)
-        admin_action_func = getattr(admin_class,selected_action)
-        admin_action_func(request,selected_objs)
+        selected_ids = json.loads(request.POST.get('selected_ids'))
+        print(selected_action, selected_ids)
+        if not selected_action:  # 如果有action参数,代表这是一个正常的action,如果没有,代表可能是一个删除动作
+            if selected_ids:  # 这些选中的数据都要被删除
+                admin_class.model.objects.filter(id__in=selected_ids).delete()
+        else:  # 走action流程
+            selected_objs = admin_class.model.objects.filter(id__in=selected_ids)
+            admin_action_func = getattr(admin_class, selected_action)
+            response = admin_action_func(request, selected_objs)
+            if response:
+                return response
     queryset = admin_class.model.objects.all().order_by('-id')
     queryset, filter_condition = get_filter_result(request, queryset)  # 筛选
     admin_class.filter_condition = filter_condition
