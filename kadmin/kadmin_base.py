@@ -8,7 +8,7 @@ class BaseKadmin(object):
     def __init__(self):
         self.actions.extend(self.default_actions)
 
-    list_display = []
+    list_display = ['id',]
     list_filter = []
     search_fields = []
     list_editable = []

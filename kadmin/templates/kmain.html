@@ -44,8 +44,14 @@
                     <ul class="nav nav-sidebar">
                         {% for role in request.user.userprofile.role.all %}
                             {% for menu in role.menus.all %}
-                                <li class="active"><a href="{% if menu.url_type == 0 %}{{ menu.url }}{% else %}{% url menu.url %}{% endif %}">{{ menu.name }}<span
+                                {% if request.path ==  menu.url%}
+                                    <li class="active"><a href="{% if menu.url_type == 0 %}{{ menu.url }}{% else %}{% url menu.url %}{% endif %}">{{ menu.name }}<span
                                         class="sr-only">(current)</span></a></li>
+                                {% else %}
+                                    <li><a href="{% if menu.url_type == 0 %}{{ menu.url }}{% else %}{% url menu.url %}{% endif %}">{{ menu.name }}<span
+                                        class="sr-only">(current)</span></a></li>
+                                {% endif %}
+
                             {% endfor %}
                         {% endfor %}
                     </ul>

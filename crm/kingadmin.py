@@ -37,6 +37,10 @@ class Admin_Menus(BaseKadmin):
         print('request.POST:', request.POST)
         querysets.update(url_type=1)
 
+class Admin_Roles(BaseKadmin):
+    list_display = ['id', 'name']
+
 ksite.kregister(models.CustomerInfo,admin_CustomerInfo)
 ksite.kregister(models.Menus,Admin_Menus)
-ksite.kregister(models.Role)
+ksite.kregister(models.Role,Admin_Roles)
+ksite.kregister(models.User)

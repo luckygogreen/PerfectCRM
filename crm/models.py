@@ -16,7 +16,7 @@ class UserProfile(models.Model):
 class Role(models.Model):
     """角色表"""
     name = models.CharField(max_length=64, unique=True)
-    menus = models.ManyToManyField('Menus',blank=True)
+    menus = models.ManyToManyField('Menus', blank=True)
 
     def __str__(self):
         return self.name
@@ -54,6 +54,7 @@ class CustomerInfo(models.Model):
 
     def __str__(self):
         return self.name
+
     class Meta:
         verbose_name_plural = '客户信息表：CustomerInfo'
         verbose_name = '客户信息表：CustomerInfo'
@@ -61,7 +62,7 @@ class CustomerInfo(models.Model):
 
 class Student(models.Model):
     """学院表"""
-    customer = models.ForeignKey('CustomerInfo', on_delete=models.CASCADE)
+    customer = models.OneToOneField('CustomerInfo', on_delete=models.CASCADE)
     class_grades = models.ManyToManyField('ClassList')
 
     def __str__(self):
@@ -110,6 +111,7 @@ class ClassList(models.Model):
     class_type = models.SmallIntegerField(choices=class_type_choices, default=1)
     semester = models.PositiveSmallIntegerField(verbose_name='学期')
     branch = models.ForeignKey('Branch', on_delete=models.CASCADE)
+    contract_template = models.ForeignKey('ContractTemplate', on_delete=models.CASCADE, blank=True, null=True)
     Teacher = models.ManyToManyField('UserProfile')
     start_date = models.DateField(verbose_name=u'开课日期')
     graduate_date = models.DateField(blank=True, null=True, verbose_name='毕业日期')
@@ -184,14 +186,50 @@ class Branch(models.Model):
 class Menus(models.Model):
     name = models.CharField(max_length=64)
     url_type_choices = (
-        (0,'absolute'),
-        (1,'dynamic'),
+        (0, 'absolute'),
+        (1, 'dynamic'),
     )
-    url_type = models.SmallIntegerField(choices=url_type_choices,verbose_name='URL类型',default=0)
+    url_type = models.SmallIntegerField(choices=url_type_choices, verbose_name='URL类型', default=0)
     url = models.CharField(max_length=128)
+
     def __str__(self):
         return self.name
 
     class Meta:
-        unique_together = ('name','url')
+        unique_together = ('name', 'url')
         verbose_name_plural = '目录表  Menus'
+
+
+class ContractTemplate(models.Model):
+    """合同模板存储表"""
+    name = models.CharField(max_length=64)
+    content = models.TextField()
+    date = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+
+
+class StudentEnrollment(models.Model):
+    """学生报名表"""
+    customer = models.ForeignKey('CustomerInfo', on_delete=models.CASCADE)
+    consulant = models.ForeignKey('UserProfile', on_delete=models.CASCADE)
+    class_grade = models.ForeignKey('ClassList', on_delete=models.CASCADE)
+    contract_agreed = models.BooleanField(default=False)
+    contract_sign_date = models.DateTimeField(blank=True, null=True, verbose_name='合同签署时间')
+    contract_approved = models.BooleanField(default=False)
+    approved_date = models.DateTimeField(blank=True, null=True, verbose_name='合同审核时间')
+
+    def __str__(self):
+        return self.customer
+
+class PaymentRecord(models.Model):
+    """缴费记录表"""
+    enrollment = models.ForeignKey('StudentEnrollment',on_delete=models.CASCADE)
+    payment_type_choices = ((0,'报名费'),(1,'学费'),(2,'退费'))
+    payment_type = models.IntegerField(choices=payment_type_choices,default=0)
+    consultant = models.ForeignKey('UserProfile',on_delete=models.CASCADE)
+    amount = models.IntegerField(verbose_name='费用',default=500)
+    date = models.DateTimeField(auto_now_add=True)
+    def __str__(self):
+        return self.amount

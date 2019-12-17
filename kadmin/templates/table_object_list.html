@@ -1,6 +1,6 @@
 {% extends 'kmain.html' %}
 {% load kadmin_tags %}
-{% block showsiderbar %}{% endblock %}
+{#{% block showsiderbar %}{% endblock %}#}
 {% block showinfomation %}
     <div class="panel panel-info" style="margin: 30px;">
         <div class="panel-heading">
@@ -9,10 +9,15 @@
                     <td>
                         <ol class="breadcrumb">
                             <li><a href="/kadmin/">All</a></li>
-                            <li><a href="/kadmin/{{appname}}/">{{ appname }}</a></li>
+                            <li><a href="/kadmin/{{ appname }}/">{{ appname }}</a></li>
                             <li class="active">{% get_model_verbose_name admin_class %}</li>
                         </ol>
                     </td>
+                    <td>
+                        <div><a href="add/" class="btn btn-info pull-right">Add</a></div>
+                    </td>
+                </tr>
+                <tr>
                     <td>
                         <div style="margin-left: 20px;margin-right: 20px;">{% if admin_class.list_filter %}
                             <form>
@@ -38,9 +43,6 @@
                                 <input type="submit" value="Search!">
                             </form>
                         </div>
-                    </td>
-                    <td>
-                        <div><a href="add/">Add</a></div>
                     </td>
                 </tr>
             </table>

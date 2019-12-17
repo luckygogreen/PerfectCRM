@@ -23,9 +23,7 @@ def kevin_index(request):
     return render(request, 'kindex.html', {'ksite': ksite})
 
 def kapp(request,appname):
-    print(appname)
     showapp = ksite.enabled_admins.get(appname)
-    print(showapp)
     return render(request,'kapp.html',{'showapp': showapp,'appname':appname})
 
 
@@ -168,5 +166,6 @@ def kuser_login(request):
 
 
 def kuser_logout(request):
+    print('111')
     logout(request)
     return redirect('/kadmin/klogin/')
