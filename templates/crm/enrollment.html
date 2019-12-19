@@ -1,0 +1,83 @@
+{% extends 'index.html' %}
+{% block for_dashboard %}
+    <div class="container">
+        <h3>Online Sign up </h3>
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <h3 class="panel-title">Customer Infomation</h3>
+            </div>
+            <form method="post" onsubmit="return BeforeFromSubmit(this)">{% csrf_token %}
+                <div class="panel-body">
+                    {% for filed in customers_form %}
+                        <div class="col-sm-6">
+                            <div class="col-sm-3">{{ filed.label }}</div>
+                            <div class="col-sm-8">{{ filed }}</div>
+                        </div>
+                    {% endfor %}
+                    <div class="col-sm-6">
+                        <div class="col-sm-3">报名班级</div>
+                        <div class="col-sm-8">{{ enrollment_obj.class_grade }}</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="col-sm-3">课程价格</div>
+                        <div class="col-sm-8">{{ enrollment_obj.class_grade.course.price }}</div>
+                    </div>
+                    <input type="submit" class="btn btn-info pull-right form-control" value="同意以下合同内容且提交">
+                    <div class="col-sm-3"><input type="checkbox" class="form-control" name="contract_agree"></div>
+                    <div class="col-sm-3"><label for="">已阅读同意一下条款</label></div>
+
+                </div>
+
+            </form>
+
+        </div>
+        <div>
+            <h2 class="text-center">已上传的文件列表</h2>
+            <ur id="uploaded_files" class="text-center">
+                {% for file in upload_files %}
+                    <li>{{ file }}</li>
+                {% endfor %}
+            </ur>
+        </div>
+        <div style="margin: 50px;">
+            <form id="myAwesomeDropzone" action="fileupload/" class="dropzone">
+                <div class="dz-message needsclick">
+                    Drop files here or click to upload.<br>
+                    <span class="note needsclick">(This is just a demo dropzone. Selected files are <strong>not</strong> actually uploaded.)</span>
+                </div>
+            </form>
+        </div>
+
+        <div class="panel panel-info" style="margin-top: 50px;">
+            <div class="panel-heading media-middle">请认真阅读以下合同条款</div>
+            <div class="panel-body">
+                <pre>{{ enrollment_obj.class_grade.contract_template.content }}</pre>
+            </div>
+        </div>
+
+
+    </div>
+    {% block extrament_js %}
+        {% load static %}
+        <script>
+            function BeforeFromSubmit(ele) {
+                $(":disabled").removeAttr("disabled");
+
+                if ($("#uploaded_files").children().length == 0) {
+                    alert("请上传身份图片！")
+                    return false
+                }
+                if (!$("input[name='contract_agree']").prop('checked')) {
+                    alert("必须完成阅读，且同意条款才可以提交注册")
+                    return false
+                }
+            }
+        </script>
+        <script src="{% static 'plugins/dropzone/dropzone.js' %}"></script>
+    {% endblock %}
+
+
+
+
+
+{% endblock %}

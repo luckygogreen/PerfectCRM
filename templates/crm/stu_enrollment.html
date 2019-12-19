@@ -1,4 +1,30 @@
 {% extends 'index.html' %}
 {% block information_box %}
-学生报名表
+    <div class="container">
+        <form method="post">{% csrf_token %}
+            <h2 class="form-signin-heading">Get enrollment link</h2>
+
+            <div class="input-group input-group-lg">
+                <span class="input-group-addon" id="sizing-addon1">Customer Name</span>
+                <select class="form-control" name="customers_id" id="customers_id">
+                    {% for customer in customers %}
+                        <option value="{{ customer.id }}">{{ customer.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="input-group input-group-lg">
+                <span class="input-group-addon" id="sizing-addon1">Customer Name</span>
+                <select class="form-control" name="class_id" id="class_list_id">
+                    {% for class in class_list %}
+                        <option value="{{ class.id }}">{{ class }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <input class="btn btn-success pull-right" type="submit" value="Get Link">
+        </form>
+        {% if enrollment_link %}
+            <p class="form-control">Please Copy the link to your customer: <span style="color: red"></span>{{ enrollment_link }}</p>
+
+        {% endif %}
+    </div>
 {% endblock %}

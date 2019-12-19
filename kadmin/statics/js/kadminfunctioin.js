@@ -74,7 +74,23 @@ function ActionCheck(ele){
         $(ele).append(input_ele);
     }
     //return false
-
-
-
 }
+
+
+function BeforeFromSubmit(ele) {
+    $(":disabled").removeAttr("disabled");
+
+    if ($("#uploaded_files").children().length == 0) {
+        alert("请上传身份图片！")
+        return false
+    }
+    if (!$("input[name='contract_agree']").prop('checked')) {
+        alert("必须完成阅读，且同意条款才可以提交注册")
+        return false
+    }
+}
+
+
+
+
+
