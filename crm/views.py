@@ -1,11 +1,12 @@
 import json
-
+import datetime
 from django.shortcuts import render, HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django import conf
 from crm import models
 from crm.forms import CustomerForm
+# from django.utils.timezone import datetime
 import os
 
 
@@ -45,11 +46,16 @@ def enrollment(request, enrollment_id):
     """学院在线报名表"""
     print('程序以及进入enrollment页面')
     enrollment_obj = models.StudentEnrollment.objects.get(id=enrollment_id)
+    if enrollment_obj.contract_agreed == True:
+        return HttpResponse('您已经提交了注册，申请正在审核中，请耐心等待！')
     if request.method == 'POST':
         print(request.POST)
         customers_form = CustomerForm(instance=enrollment_obj.customer, data=request.POST)
         if customers_form.is_valid():
             customers_form.save()
+            enrollment_obj.contract_agreed = True
+            enrollment_obj.contract_sign_date = datetime.datetime.now()
+            enrollment_obj.save()
             return HttpResponse('你已经注册成功，请等待咨询顾问与你联系')
         else:
             print('验证失败:', customers_form.errors)

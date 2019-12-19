@@ -223,7 +223,7 @@ class StudentEnrollment(models.Model):
     class Meta:
         unique_together = ('customer','class_grade')
     def __str__(self):
-        return self.customer
+        return '%s' % self.customer
 
 class PaymentRecord(models.Model):
     """缴费记录表"""
