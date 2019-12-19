@@ -149,6 +149,6 @@ DATETIME_INPUT_FORMATS = [
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'statics'), os.path.join(BASE_DIR, 'kadmin/statics')]
 
-# LOGIN_URL = '/login/',
-LOGIN_URL = 'kadmin/klogin/',
+LOGIN_URL = '/login/',
+# LOGIN_URL = 'kadmin/klogin/',
 CRM_FILE_UPLOADS_DIR = [os.path.join(BASE_DIR, 'crm/upload_files/enrollment_data')]
