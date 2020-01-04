@@ -2,15 +2,100 @@ from django.db import models
 from django.contrib.auth.models import User
 
 
-# Create your models here.
-class UserProfile(models.Model):
-    """用户信息表"""
-    user = models.OneToOneField(User, on_delete=models.CASCADE)  # 关联Django的用户验证表
-    name = models.CharField(max_length=32, verbose_name="full name")
-    role = models.ManyToManyField('Role')
+from django.db import models
+from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, PermissionsMixin
 
-    def __str__(self):  # _unicode
-        return self.name
+
+
+class UserProfileManager(BaseUserManager):
+    def create_user(self, email, name, password=None):
+        """
+        Creates and saves a User with the given email, date of
+        birth and password.
+        """
+        if not email:
+            raise ValueError('Users must have an email address')
+
+        user = self.model(
+            email=self.normalize_email(email),
+            name=name,
+        )
+
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, email, name, password=None):
+        """
+        Creates and saves a superuser with the given email, date of
+        birth and password.
+        """
+        user = self.create_user(
+            email,
+            password=password,
+            name=name,
+        )
+        user.is_superuser = True
+        user.save(using=self._db)
+        return user
+
+
+class UserProfile(AbstractBaseUser,PermissionsMixin):
+    email = models.EmailField(verbose_name='email address',max_length=255,unique=True,blank=True,null=True)
+    name = models.CharField(max_length=32, verbose_name="full name")
+    # role = models.ManyToManyField('Role',blank=True,null=True)
+    role = models.ManyToManyField('Role',blank=True, null=True)
+    # date_of_birth = models.DateField()
+    is_staff = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True)
+    # is_admin = models.BooleanField(default=False)
+    objects = UserProfileManager()    # 变量名必须要是 objects ，不能为其他
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['name']
+
+    def __str__(self):
+        return self.email
+
+    class Meta:
+        verbose_name = '用户信息表：UserProfile'
+        verbose_name_plural = '用户信息表：UserProfile'
+        permissions = (
+            ('crm_table_list', 'kadmin 查看每个表的数据列表页'),  # 判断权限是否被加载， a.has_perm('crm.crm_table_list')
+            ('crm_table_list_view', 'kadmin 可以访问表内容'),  #  Django 默认的权限，只能做到添加，如需修改或者删除，必须要在数据库表auth_permission中操作
+            ('crm_table_list_change', 'kadmin 可以修改表内容'),
+            ('crm_table_list_add_view', 'kadmin 访问数据增加页面'),
+            ('crm_table_list_add', 'kadmin 添加表数据'),
+        )
+    # def has_perm(self, perm, obj=None):
+    #     "Does the user have a specific permission?"
+    #     # Simplest possible answer: Yes, always
+    #     return True
+
+    # def has_module_perms(self, app_label):
+    #     "Does the user have permissions to view the app `app_label`?"
+    #     # Simplest possible answer: Yes, always
+    #     return True
+
+    # @property
+    # def is_staff(self):
+    #     "Is the user a member of staff?"
+    #     # Simplest possible answer: All admins are staff
+    #     return self.is_admin
+
+
+
+
+
+
+
+# class UserProfile(models.Model): #之前写的 UserProfile
+#     """用户信息表"""
+#     user = models.OneToOneField(User, on_delete=models.CASCADE)  # 关联Django的用户验证表
+#     name = models.CharField(max_length=32, verbose_name="full name")
+#     role = models.ManyToManyField('Role')
+#
+#     def __str__(self):  # _unicode
+#         return self.name #  #之前写
 
 
 class Role(models.Model):
@@ -58,6 +143,7 @@ class CustomerInfo(models.Model):
     class Meta:
         verbose_name_plural = '客户信息表：CustomerInfo'
         verbose_name = '客户信息表：CustomerInfo'
+
 
 
 class Student(models.Model):
@@ -221,17 +307,20 @@ class StudentEnrollment(models.Model):
     approved_date = models.DateTimeField(blank=True, null=True, verbose_name='合同审核时间')
 
     class Meta:
-        unique_together = ('customer','class_grade')
+        unique_together = ('customer', 'class_grade')
+
     def __str__(self):
         return '%s' % self.customer
 
+
 class PaymentRecord(models.Model):
     """缴费记录表"""
-    enrollment = models.ForeignKey('StudentEnrollment',on_delete=models.CASCADE)
-    payment_type_choices = ((0,'报名费'),(1,'学费'),(2,'退费'))
-    payment_type = models.IntegerField(choices=payment_type_choices,default=0)
-    consultant = models.ForeignKey('UserProfile',on_delete=models.CASCADE)
-    amount = models.IntegerField(verbose_name='费用',default=500)
+    enrollment = models.ForeignKey('StudentEnrollment', on_delete=models.CASCADE)
+    payment_type_choices = ((0, '报名费'), (1, '学费'), (2, '退费'))
+    payment_type = models.IntegerField(choices=payment_type_choices, default=0)
+    consultant = models.ForeignKey('UserProfile', on_delete=models.CASCADE)
+    amount = models.IntegerField(verbose_name='费用', default=500)
     date = models.DateTimeField(auto_now_add=True)
+
     def __str__(self):
         return self.amount

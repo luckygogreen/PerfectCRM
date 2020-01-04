@@ -6,6 +6,7 @@ from django.core.paginator import Paginator
 from kadmin import kadd_stepup
 from django.db.models import Q
 from kadmin import dynamic_form
+from kadmin import permissions
 
 kadd_stepup.kadmin_auto_deicover()
 from kadmin.ksites import ksite
@@ -69,7 +70,11 @@ def get_filter_result(request, queryset):
     print('filter_condition:', filter_condition)
     return queryset.filter(**filter_condition), filter_condition
 
+# 没有找到页面403
+def error403(request):
+    return render(request,'/kadmin/403.html')
 
+@permissions.check_permission
 @login_required  # 显示数据
 def table_obj_list(request, appname, modelname):
     """取出指定Model table里的数据，返回给前端"""
@@ -110,7 +115,7 @@ def table_obj_list(request, appname, modelname):
                    'show_items_per_page': admin_class.list_per_page,
                    'current_order_column': current_order_column})
 
-
+@permissions.check_permission
 @login_required  # 修改数据
 def table_obj_change(request, appname, modelname, changeid):
     """修改显示列表，返回的要修改的数"""
@@ -127,6 +132,7 @@ def table_obj_change(request, appname, modelname, changeid):
 
     return render(request, 'table_object_change.html', locals())
 
+@permissions.check_permission
 @login_required
 def table_obj_add(request,appname,modelname):
     admin_class = ksite.enabled_admins[appname][modelname]
@@ -140,6 +146,7 @@ def table_obj_add(request,appname,modelname):
         return redirect('/kadmin/%s/%s/' % (appname, modelname))
     return render(request,'table_obj_add.html',locals())
 
+@permissions.check_permission
 @login_required
 def table_obj_delete(request,appname,modelname,delete_id):
     admin_class = ksite.enabled_admins[appname][modelname]

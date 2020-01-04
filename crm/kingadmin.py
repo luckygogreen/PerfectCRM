@@ -43,7 +43,7 @@ class Admin_Roles(BaseKadmin):
 ksite.kregister(models.CustomerInfo,admin_CustomerInfo)
 ksite.kregister(models.Menus,Admin_Menus)
 ksite.kregister(models.Role,Admin_Roles)
-ksite.kregister(models.User)
+ksite.kregister(models.UserProfile)
 ksite.kregister(models.StudentEnrollment)
 ksite.kregister(models.ContractTemplate)
 ksite.kregister(models.PaymentRecord)

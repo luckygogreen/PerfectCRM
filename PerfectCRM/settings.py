@@ -80,7 +80,8 @@ WSGI_APPLICATION = 'PerfectCRM.wsgi.application'
 #         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
 #     }
 # }
-# 管理员用户名密码：kevin = Kk_88888888
+# 管理员用户名密码：kevin@kevin = 88888888
+# 测试用户名密码： jenny@jenny.com = Haha_888
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -112,6 +113,8 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
+
+AUTH_USER_MODEL = 'crm.UserProfile'
 
 LANGUAGE_CODE = 'en-us'
 
@@ -150,5 +153,5 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'statics'), os.path.join(BASE_DIR, 'kadmin/statics')]
 
 LOGIN_URL = '/login/',
-# LOGIN_URL = 'kadmin/klogin/',
+LOGIN_URL = 'kadmin/klogin/',
 CRM_FILE_UPLOADS_DIR = [os.path.join(BASE_DIR, 'crm/upload_files/enrollment_data')]
